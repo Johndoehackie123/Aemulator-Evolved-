@@ -68,11 +68,15 @@ Direct download from the branch:
 `https://raw.githubusercontent.com/Johndoehackie123/Aemulator-Evolved-/arena/f3a2b860-aemulator-evolved/artifacts/Aemulator-Evolved-standard-debug.apk`
 
 Verified SHA-256 of the latest successful build:
-`e72afd427f78a384dbcfff638922fcf4f14830b3edb0cf91767ccbee2be12c0a`
+`59fbb08d384ab78870931ccee776efa61c3a2199a315272214b6a696590da6d2`
 
 - Requires Android 8.0+ (API 26), arm64-v8a, ~1–3 GB free storage per firmware.
 - `targetSdk 28` is inherited from upstream; this is intentional (guest binaries need it).
 - The debug build is unsigned-debug; Android accepts it for sideloading.
+- Installed package ID is **`com.aemu.evolved`** (clone: `com.aemu.evolved.clone`,
+  v0003: `com.aemu.evolved.v0003`). The Kotlin namespace stays `app.aemu` so upstream
+  source can be patched without a mass rename. It installs **side by side** with the
+  upstream `app.aemu` build; the FileProvider authority is `com.aemu.evolved.provider`.
 
 ## Verification status of catalog entries
 
