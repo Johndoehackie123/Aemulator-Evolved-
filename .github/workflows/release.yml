@@ -1,11 +1,6 @@
 name: Publish Firmware Hub release
 on:
   workflow_dispatch:
-  push:
-    branches: [arena/f3a2b860-aemulator-evolved]
-    paths:
-      - '.github/workflows/release.yml'
-      - 'artifacts/**'
 
 permissions:
   contents: write
@@ -16,33 +11,37 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: arena/f3a2b860-aemulator-evolved
+          ref: main
       - name: Create release and upload assets
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -e
-          if gh release view v0.0.0.3-hub >/dev/null 2>&1; then
-            echo "Release already exists"
+          TAG="v0.0.0.4-evolved"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG already exists"
             exit 0
           fi
+          SHA=$(sha256sum artifacts/Aemulator-Evolved-standard-debug.apk | cut -d' ' -f1)
           {
-            echo "Firmware Hub build of upstream AEmulator (GPL-3.0), based on pinned upstream commit 3b97ed5."
+            echo "AEmulator Evolved v0.0.0.4 - Firmware Hub build."
+            echo ""
+            echo "This GPL-3.0 fork is based on uxazu/AEmulator (pinned 3b97ed5) and the original SENSES emulator by Istratii-tech."
+            echo "Repository: https://github.com/Johndoehackie123/Aemulator-Evolved-"
+            echo "Package ID: app.aemu.evolved - installs side by side with upstream app.aemu."
             echo ""
             echo "Install: Aemulator-Evolved-standard-debug.apk (arm64-v8a, Android 8.0+/API 26)."
-            echo "Package ID: app.aemu.evolved - installs side by side with upstream app.aemu."
-            echo "SHA-256: ad10c53def6c525169aaa6823b6398f72e62798ff67a7af4115a6c793fb1a37f"
+            echo "SHA-256: $SHA"
             echo ""
-            echo "Includes firmware catalog, one-tap resumable downloads with checksum verification,"
+            echo "Included: firmware catalog, one-tap resumable downloads with checksum verification,"
             echo "import queue with auto-import for verified files, and Hub settings for layouts,"
-            echo "Wi-Fi-only, storage quota and more. App name remains AEmulator; upstream attribution preserved."
+            echo "Wi-Fi-only, storage quota and more. The in-app updater now checks this repository."
             echo ""
-            echo "Build: https://github.com/Johndoehackie123/Aemulator-Evolved-/actions/runs/45740197518"
             echo "8/8 unit tests passed. Not tested on a physical device."
           } > /tmp/release-notes.md
-          gh release create v0.0.0.3-hub --target main \
-            --title "AEmulator - Firmware Hub (app.aemu.evolved)" \
+          gh release create "$TAG" --target main \
+            --title "AEmulator Evolved v0.0.0.4" \
             --notes-file /tmp/release-notes.md \
             artifacts/Aemulator-Evolved-standard-debug.apk \
             artifacts/Aemulator-Evolved-standard-debug.apk.sha256
-          gh release view v0.0.0.3-hub
+          gh release view "$TAG"

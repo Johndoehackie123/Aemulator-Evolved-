@@ -1,10 +1,19 @@
-# AEmulator — Firmware Hub fork
+# AEmulator Evolved — Firmware Hub fork
+
+Repository: **https://github.com/Johndoehackie123/Aemulator-Evolved-**
+GitHub: **https://github.com/Johndoehackie123**
 
 This repository is a fork-style overlay on **[uxazu/AEmulator](https://github.com/uxazu/AEmulator)**
-(v0.0.0.3, pinned at `3b97ed585e484395c455aca7338d7ddcbf955d9f`). It adds a **Firmware Hub**
-without changing the app's name, branding, engine or importer. AEmulator is GPL-3.0 and
-based on the original SENSES emulator by Istratii-tech; that attribution is preserved in
-the app's Hub screen and in upstream files.
+(v0.0.0.3, pinned at `3b97ed585e484395c455aca7338d7ddcbf955d9f`). It adds a **Firmware Hub**.
+The app is now named **AEmulator Evolved** (approved rename); the engine, importer and
+upstream attribution are preserved. AEmulator is GPL-3.0 and based on the original SENSES
+emulator by Istratii-tech; the in-app settings link to both this fork and the upstream project.
+
+## Updater
+
+The in-app updater checks **this repository's releases**, not upstream:
+`https://api.github.com/repos/Johndoehackie123/Aemulator-Evolved-/releases`.
+Settings → Updates → "Check for updates" uses your fork's APK assets.
 
 ## What was added
 
@@ -27,7 +36,8 @@ the app's Hub screen and in upstream files.
   automatically; unverified files still need your explicit confirmation.
 
 The implementation is in `overlay/app/src/main/java/app/aemu/hub/` plus small patched copies
-of `MainActivity.kt`, `Home.kt` and `values/strings.xml`. The original draft files are kept
+of `MainActivity.kt`, `Home.kt`, `AppSettingsActivity.kt`, `UpdateDialog.kt`,
+`AppUpdateManager.kt`, `build.gradle.kts` and `values/strings.xml`. The original draft files are kept
 in `drafts/` for provenance only; they are not compiled.
 
 ## Building
@@ -67,8 +77,8 @@ the workflow run as an artifact named `Aemulator-Evolved-arm64-debug`.
 Direct download from the branch:
 `https://raw.githubusercontent.com/Johndoehackie123/Aemulator-Evolved-/arena/f3a2b860-aemulator-evolved/artifacts/Aemulator-Evolved-standard-debug.apk`
 
-Verified SHA-256 of the latest successful build:
-`ad10c53def6c525169aaa6823b6398f72e62798ff67a7af4115a6c793fb1a37f`
+Releases: https://github.com/Johndoehackie123/Aemulator-Evolved-/releases
+SHA-256 is published in each release's `.sha256` asset and in `artifacts/`.
 
 - Requires Android 8.0+ (API 26), arm64-v8a, ~1–3 GB free storage per firmware.
 - `targetSdk 28` is inherited from upstream; this is intentional (guest binaries need it).
@@ -92,4 +102,6 @@ Verified SHA-256 of the latest successful build:
 ## License
 
 GPL-3.0, inherited from [uxazu/AEmulator](https://github.com/uxazu/AEmulator/blob/main/LICENSE).
+Fork maintained by [Johndoehackie123](https://github.com/Johndoehackie123) at
+[Johndoehackie123/Aemulator-Evolved-](https://github.com/Johndoehackie123/Aemulator-Evolved-).
 Firmware images, Android and device trademarks belong to their respective owners.
