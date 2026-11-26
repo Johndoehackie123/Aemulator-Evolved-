@@ -21,6 +21,7 @@ jobs:
           git config user.name "fetch-bot"; git config user.email "fetch@example.com"
           git add install-log.txt || true
           git commit -m "playwright install log" || true
+          git pull --rebase origin arena/f3a2b860-aemulator-evolved || true
           git push origin HEAD:arena/f3a2b860-aemulator-evolved || true
           tail -30 install-log.txt
           test -d node_modules/playwright
@@ -59,8 +60,9 @@ jobs:
           fs.writeFileSync('visit-log.txt', log.join('\n'));
           await browser.close();
           EOF
-          node visit.mjs || true
+          node visit.mjs > visit-stdout.txt 2>&1 || true
           git config user.name "fetch-bot"; git config user.email "fetch@example.com"
-          git add visit-log.txt folder.png || true
+          git add -A visit-log.txt visit-stdout.txt folder.png install-log.txt || true
           git commit -m "file.kiwi browser probe" || true
+          git pull --rebase origin arena/f3a2b860-aemulator-evolved || true
           git push origin HEAD:arena/f3a2b860-aemulator-evolved || true
