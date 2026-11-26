@@ -108,13 +108,17 @@ jobs:
           set -e
           BT="$(ls -1 "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
           export PATH="$ANDROID_HOME/build-tools/$BT:$PATH"
-          expected="$(tr -d '[:space:]' < fork/signing/CERTIFICATE_SHA256.txt)"
-          apksigner verify --verbose --print-certs fork/artifacts/Aemulator-Evolved-standard-debug.apk \
+          expected="$(tr -d '[:space:]' < fork/signing/CERTIFICATE_SHA256.txt | tr 'A-F' 'a-f')"
+          apksigner verify --verbose --print-certs fork/artifacts/Aemulator-Evolved-standard-debug.apk 2>&1 \
             | tee fork/artifacts/signature.txt
-          actual="$(sed -n 's/.*certificate SHA-256 digest: //p' fork/artifacts/signature.txt | head -1 | tr -d '[:space:]')"
+          actual="$(sed -n 's/.*SHA-256 digest: //p' fork/artifacts/signature.txt | head -1 | tr -d '[:space:]' | tr 'A-F' 'a-f')"
           echo "Expected signing certificate: $expected"
           echo "Actual signing certificate:   $actual"
-          test -n "$actual" || { echo "apksigner reported no signer"; exit 1; }
+          if [ -z "$actual" ]; then
+            echo "apksigner reported no SHA-256 signer digest"
+            grep -i -E 'signer|digest|error' fork/artifacts/signature.txt || true
+            exit 1
+          fi
           test "$actual" = "$expected" || { echo "APK signature does not match the pinned certificate"; exit 1; }
 
       - name: Publish APK into this branch for download
