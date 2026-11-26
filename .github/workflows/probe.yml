@@ -18,7 +18,7 @@ jobs:
           curl -sSL -D headers.txt -o page.html "https://file.kiwi/717a5d20" || true
           echo "=== PAGE SIZE ==="; wc -c page.html headers.txt
           echo "=== HTTP HEADERS ==="; cat headers.txt
-          echo "=== SCRIPTS ==="; grep -oE '<script[^>]+src="[^"]+"' page.html | sed 's/.*src="//' | sort -u | tee scripts.txt
+          echo "=== SCRIPTS ==="; grep -oE '/_app/immutable/[A-Za-z0-9_./-]+\.js' page.html | sort -u | tee scripts.txt
           echo "=== API CURLS ==="
           for u in \
             "https://api.file.kiwi/v1/delivery-webfolder/717a5d20" \
