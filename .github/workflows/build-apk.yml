@@ -51,9 +51,21 @@ jobs:
       - name: Run checksum/catalog unit tests and build arm64 debug APK
         working-directory: upstream
         run: |
+          set -o pipefail
           ./gradlew --no-daemon --stacktrace \
             :app:testStandardDebugUnitTest \
-            :app:assembleStandardDebug
+            :app:assembleStandardDebug 2>&1 | tee ../fork/build-report.txt
+
+      - name: Save build report on failure
+        if: failure()
+        working-directory: fork
+        run: |
+          git config user.name "AEmulator build bot"
+          git config user.email "build@example.com"
+          git add -f build-report.txt || true
+          git commit -m "CI: build failure report" || true
+          git pull --rebase origin arena/f3a2b860-aemulator-evolved || true
+          git push origin HEAD:arena/f3a2b860-aemulator-evolved || true
 
       - name: Collect signed/unsigned APK and checksum
         run: |
