@@ -57,16 +57,16 @@ android {
     productFlavors {
         create("standard") {
             dimension = "distribution"
-            applicationId = "com.aemu.evolved"
+            applicationId = "app.aemu.evolved"
         }
         create("clone") {
             dimension = "distribution"
-            applicationId = "com.aemu.evolved.clone"
+            applicationId = "app.aemu.evolved.clone"
         }
         // a copy of this release that installs next to app.aemu (a package name part cannot start with a digit)
         create("v0003") {
             dimension = "distribution"
-            applicationId = "com.aemu.evolved.v0003"
+            applicationId = "app.aemu.evolved.v0003"
         }
     }
 
@@ -137,17 +137,17 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
 }
 
-// sh: ./gradlew :app:copyReleaseApks -> release-apks/<version>/com.aemu.evolved.apk and com.aemu.evolved.v0003.apk
+// sh: ./gradlew :app:copyReleaseApks -> release-apks/<version>/app.aemu.evolved.apk and app.aemu.evolved.v0003.apk
 tasks.register<Copy>("copyReleaseApks") {
     dependsOn("assembleStandardRelease", "assembleV0003Release")
     val v = android.defaultConfig.versionName
     from(layout.buildDirectory.dir("outputs/apk/standard/release")) {
         include("*.apk")
-        rename { "com.aemu.evolved.apk" }
+        rename { "app.aemu.evolved.apk" }
     }
     from(layout.buildDirectory.dir("outputs/apk/v0003/release")) {
         include("*.apk")
-        rename { "com.aemu.evolved.v0003.apk" }
+        rename { "app.aemu.evolved.v0003.apk" }
     }
     into(rootProject.layout.projectDirectory.dir("release-apks/$v"))
 }

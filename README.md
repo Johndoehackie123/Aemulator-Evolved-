@@ -73,10 +73,10 @@ Verified SHA-256 of the latest successful build:
 - Requires Android 8.0+ (API 26), arm64-v8a, ~1–3 GB free storage per firmware.
 - `targetSdk 28` is inherited from upstream; this is intentional (guest binaries need it).
 - The debug build is unsigned-debug; Android accepts it for sideloading.
-- Installed package ID is **`com.aemu.evolved`** (clone: `com.aemu.evolved.clone`,
-  v0003: `com.aemu.evolved.v0003`). The Kotlin namespace stays `app.aemu` so upstream
+- Installed package ID is **`app.aemu.evolved`** (clone: `app.aemu.evolved.clone`,
+  v0003: `app.aemu.evolved.v0003`). The Kotlin namespace stays `app.aemu` so upstream
   source can be patched without a mass rename. It installs **side by side** with the
-  upstream `app.aemu` build; the FileProvider authority is `com.aemu.evolved.provider`.
+  upstream `app.aemu` build; the FileProvider authority is `app.aemu.evolved.provider`.
 
 ## Verification status of catalog entries
 
