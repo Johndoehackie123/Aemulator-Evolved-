@@ -1,0 +1,49 @@
+name: Build AEmulator baseline APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      # This builds the upstream baseline, NOT the unfinished Firmware Hub draft.
+      - name: Check out AEmulator upstream
+        uses: actions/checkout@v4
+        with:
+          repository: uxazu/AEmulator
+          ref: 3b97ed585e484395c455aca7338d7ddcbf955d9f
+          path: upstream
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Configure build
+        working-directory: upstream
+        shell: bash
+        run: |
+          chmod +x gradlew
+          # Upstream's developer-specific Windows JDK path cannot be used on Linux.
+          sed -i '/^org\.gradle\.java\.home=/d' gradle.properties
+          echo "sdk.dir=$ANDROID_HOME" > local.properties
+
+      - name: Build standard debug APK
+        working-directory: upstream
+        run: ./gradlew --no-daemon --stacktrace :app:assembleStandardDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: AEmulator-standard-debug
+          path: upstream/app/build/outputs/apk/standard/debug/*.apk
+          if-no-files-found: error
+          retention-days: 14
