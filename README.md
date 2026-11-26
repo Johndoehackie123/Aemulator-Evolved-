@@ -21,7 +21,10 @@ the app's Hub screen and in upstream files.
 - **Import queue** — verified downloads can be queued and are imported sequentially with
   the upstream `Importer`, so two large imports never run at once. Queue state and progress
   are visible in the Hub.
-- Entry point: **+ → Firmware Hub** on the library screen.
+- Entry point: **+ → Firmware Hub** on the library screen, with its own Material icon.
+- Expressive Material 3 styling: dynamic color (when enabled in AEmulator settings), extra-large
+  shapes, animated cards and a stats header. Verified downloads are queued for import
+  automatically; unverified files still need your explicit confirmation.
 
 The implementation is in `overlay/app/src/main/java/app/aemu/hub/` plus small patched copies
 of `MainActivity.kt`, `Home.kt` and `values/strings.xml`. The original draft files are kept
@@ -65,7 +68,7 @@ Direct download from the branch:
 `https://raw.githubusercontent.com/Johndoehackie123/Aemulator-Evolved-/arena/f3a2b860-aemulator-evolved/artifacts/Aemulator-Evolved-standard-debug.apk`
 
 Verified SHA-256 of the latest successful build:
-`309080bf2bf30ce8c704192cef1082da28450716e802d1811f6a97ecc9511be8`
+`e72afd427f78a384dbcfff638922fcf4f14830b3edb0cf91767ccbee2be12c0a`
 
 - Requires Android 8.0+ (API 26), arm64-v8a, ~1–3 GB free storage per firmware.
 - `targetSdk 28` is inherited from upstream; this is intentional (guest binaries need it).

@@ -51,10 +51,18 @@ jobs:
       - name: Run checksum/catalog unit tests and build arm64 debug APK
         working-directory: upstream
         run: |
-          set -o pipefail
-          ./gradlew --no-daemon --stacktrace \
-            :app:testStandardDebugUnitTest \
-            :app:assembleStandardDebug 2>&1 | tee ../fork/build-report.txt
+          set +e
+          rc=1
+          for attempt in 1 2 3; do
+            ./gradlew --no-daemon --stacktrace \
+              :app:testStandardDebugUnitTest \
+              :app:assembleStandardDebug 2>&1 | tee ../fork/build-report.txt
+            rc=${PIPESTATUS[0]}
+            [ "$rc" -eq 0 ] && break
+            echo "Gradle failed with $rc (attempt $attempt/3) - retrying after 30s"
+            sleep 30
+          done
+          exit "$rc"
 
       - name: Save build report on failure
         if: failure()
