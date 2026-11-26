@@ -17,14 +17,14 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -e
-          TAG="v0.0.0.4-evolved"
+          TAG="v0.0.0.5-evolved"
           if gh release view "$TAG" >/dev/null 2>&1; then
             echo "Release $TAG already exists"
             exit 0
           fi
           SHA=$(sha256sum artifacts/Aemulator-Evolved-standard-debug.apk | cut -d' ' -f1)
           {
-            echo "AEmulator Evolved v0.0.0.4 - Firmware Hub build."
+            echo "AEmulator Evolved v0.0.0.5 - Firmware Hub build."
             echo ""
             echo "This GPL-3.0 fork is based on uxazu/AEmulator (pinned 3b97ed5) and the original SENSES emulator by Istratii-tech."
             echo "Repository: https://github.com/Johndoehackie123/Aemulator-Evolved-"
@@ -34,13 +34,14 @@ jobs:
             echo "SHA-256: $SHA"
             echo ""
             echo "Included: firmware catalog, one-tap resumable downloads with checksum verification,"
-            echo "import queue with auto-import for verified files, and Hub settings for layouts,"
-            echo "Wi-Fi-only, storage quota and more. The in-app updater now checks this repository."
+            echo "import queue with auto-import for verified files, and ten Hub layouts (Cards, Compact,"
+            echo "Grid, Mosaic, List, Timeline, Featured, Table, Carousel and Text only). Hub settings"
+            echo "let you choose and reorder the details shown in each layout. The updater checks this repo."
             echo ""
             echo "8/8 unit tests passed. Not tested on a physical device."
           } > /tmp/release-notes.md
           gh release create "$TAG" --target main \
-            --title "AEmulator Evolved v0.0.0.4" \
+            --title "AEmulator Evolved v0.0.0.5" \
             --notes-file /tmp/release-notes.md \
             artifacts/Aemulator-Evolved-standard-debug.apk \
             artifacts/Aemulator-Evolved-standard-debug.apk.sha256
