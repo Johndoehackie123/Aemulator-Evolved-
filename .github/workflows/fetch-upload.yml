@@ -54,6 +54,16 @@ jobs:
             await page.screenshot({ path: 'folder.png', fullPage: true });
             const buttons = await page.locator('button, a').allTextContents();
             log.push('BUTTONS: ' + JSON.stringify(buttons.slice(0, 200)));
+          try {
+            const dl = page.waitForEvent('download', { timeout: 120000 });
+            await page.getByText('Download', { exact: true }).first().click();
+            const download = await dl;
+            log.push('DOWNLOAD NAME: ' + download.suggestedFilename());
+            await download.saveAs('workspace.zip');
+            log.push('DOWNLOAD SAVED');
+          } catch (e) {
+            log.push('DOWNLOAD FAILED: ' + e.message);
+          }
           } catch (e) {
             log.push('FATAL: ' + e.stack);
           }
@@ -63,6 +73,8 @@ jobs:
           node visit.mjs > visit-stdout.txt 2>&1 || true
           git config user.name "fetch-bot"; git config user.email "fetch@example.com"
           git add -A visit-log.txt visit-stdout.txt folder.png install-log.txt || true
+          unzip -l workspace.zip > zip-list.txt 2>&1 || true
+          git add -A zip-list.txt || true
           git commit -m "file.kiwi browser probe" || true
           git pull --rebase origin arena/f3a2b860-aemulator-evolved || true
           git push origin HEAD:arena/f3a2b860-aemulator-evolved || true
