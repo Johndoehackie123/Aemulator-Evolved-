@@ -12,6 +12,7 @@ import androidx.compose.material.icons.rounded.CloudDownload
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.SystemUpdate
 import androidx.compose.material3.DrawerState
+import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationBar
@@ -100,10 +101,7 @@ fun AppSideNav(
     onSelect: (AppDestination) -> Unit,
     compact: Boolean = false,
 ) {
-    NavigationRail(
-        modifier = if (compact) Modifier.width(64.dp) else Modifier,
-        alwaysShowLabels = !compact,
-    ) {
+    NavigationRail(modifier = if (compact) Modifier.width(64.dp) else Modifier) {
         AppDestination.values().forEach { destination ->
             NavigationRailItem(
                 selected = current == destination,
