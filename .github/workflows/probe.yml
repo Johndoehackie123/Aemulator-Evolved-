@@ -1,0 +1,45 @@
+name: Probe file.kiwi download API
+on: workflow_dispatch:
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch page HTML and script list
+        run: |
+          set -x
+          curl -sSL -D headers.txt -o page.html "https://file.kiwi/717a5d20" || true
+          wc -c page.html headers.txt
+          head -c 800 page.html
+          echo "=== SCRIPTS ==="
+          grep -oE '<script[^>]+src="[^"]+"' page.html | sed 's/.*src="//' | sort -u | tee scripts.txt
+          echo "=== API CURLS ==="
+          for u in \
+            "https://api.file.kiwi/v1/delivery-webfolder/717a5d20" \
+            "https://api.file.kiwi/v2/folders/717a5d20" \
+            "https://file.kiwi/api/webfolder/717a5d20"; do
+            echo "--- $u"
+            curl -sS -i --max-time 20 "$u" | head -c 1200 || true
+            echo
+          done
+      - name: Fetch JS bundles and grep endpoints
+        run: |
+          i=0
+          while read -r p; do
+            case "$p" in /*) url="https://file.kiwi$p";; *) url="$p";; esac
+            i=$((i+1))
+            echo "=== JS $i $url ==="
+            curl -sSL --max-time 30 "$url" -o "js$i.js" || true
+            wc -c "js$i.js" || true
+            grep -oE 'https://api\.file\.kiwi[^"'"'"' )]*' "js$i.js" | sort -u | head -40 || true
+            grep -oE '"/v[12]/[A-Za-z0-9_/${}?.=&-]+"' "js$i.js" | sort -u | head -80 || true
+          done < scripts.txt
+      - name: Upload probe output
+        uses: actions/upload-artifact@v4
+        with:
+          name: kiwi-probe
+          path: |
+            page.html
+            headers.txt
+            scripts.txt
+            js*.js
+          if-no-files-found: ignore
