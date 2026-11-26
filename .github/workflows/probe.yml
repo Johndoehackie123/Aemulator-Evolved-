@@ -1,5 +1,7 @@
 name: Probe file.kiwi download API
-on: workflow_dispatch:
+on:
+  workflow_dispatch:
+  push:
 jobs:
   probe:
     runs-on: ubuntu-latest
