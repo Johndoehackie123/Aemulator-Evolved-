@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Distinct Hub mark: a firmware "card stack" with a download arrow. The app name and
+     launcher icon remain upstream AEmulator; this is only the FAB menu entry. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M6,2h12a4,4 0 0 1 4,4v2H2V6a4,4 0 0 1 4,-4z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M2,10h20v2H2z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M12,13l5,5h-3v4h-4v-4H7l5,-5z" />
+</vector>

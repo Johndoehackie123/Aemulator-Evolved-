@@ -264,6 +264,9 @@ object FirmwareDownloads {
                     copy(status = Status.READY, received = len, total = len, bytesPerSec = 0,
                         verdict = if (spec != null) Verdict.VERIFIED else Verdict.UNVERIFIED, message = null)
                 }
+                // User chose auto-import for verified files. Unverified files never auto-import:
+                // the Hub still shows an explicit confirmation dialog for those.
+                if (spec != null && algorithm != null) FirmwareImportQueue.enqueue(ctx, entry, out)
                 return
             } catch (e: CancellationException) {
                 throw e

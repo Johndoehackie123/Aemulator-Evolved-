@@ -29,7 +29,6 @@ import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.FileOpen
-import androidx.compose.material.icons.rounded.CloudDownload
 import androidx.compose.material.icons.rounded.Inventory2
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.PlayArrow
@@ -71,6 +70,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -195,8 +195,11 @@ fun HomeFab(
             text = { Text(stringResource(R.string.add_import)) })
         FloatingActionButtonMenuItem(onClick = { onToggle(false); onLibrary() }, icon = { Icon(Icons.Rounded.Inventory2, null) },
             text = { Text(stringResource(R.string.lib_title)) })
-        FloatingActionButtonMenuItem(onClick = { onToggle(false); onHub() }, icon = { Icon(Icons.Rounded.CloudDownload, null) },
-            text = { Text(stringResource(R.string.hub_title)) })
+        FloatingActionButtonMenuItem(
+            onClick = { onToggle(false); onHub() },
+            icon = { Icon(painterResource(R.drawable.ic_firmware_hub), null, tint = MaterialTheme.colorScheme.primary) },
+            text = { Text(stringResource(R.string.hub_title)) },
+        )
     }
 }
 

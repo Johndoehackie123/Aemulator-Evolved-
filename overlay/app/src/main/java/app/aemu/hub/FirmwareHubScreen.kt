@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -48,6 +49,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -95,6 +97,19 @@ fun FirmwareHubScreen(
     val importItems by FirmwareImportQueue.items.collectAsState()
     val scroll = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
+    // Auto-import can finish while the Hub is in the background; keep the library fresh.
+    DisposableEffect(onImported) {
+        val previous = FirmwareImportQueue.globalOnImported
+        FirmwareImportQueue.globalOnImported = onImported
+        onDispose { FirmwareImportQueue.globalOnImported = previous }
+    }
+
+    val catalogCount = FirmwareCatalog.entries.size
+    val downloadedCount = FirmwareCatalog.entries.count { FirmwareDownloads.finishedFile(ctx, it) != null }
+    val queuedCount = downloadQueue.size + importItems.count {
+        it.status == FirmwareImportQueue.Status.QUEUED || it.status == FirmwareImportQueue.Status.RUNNING
+    }
+
     Scaffold(
         modifier = Modifier.nestedScroll(scroll.nestedScrollConnection),
         topBar = {
@@ -132,15 +147,39 @@ fun FirmwareHubScreen(
 
             item {
                 Card(
+                    shape = MaterialTheme.shapes.extraLarge,
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    ),
+                ) {
+                    Row(
+                        Modifier.fillMaxWidth().padding(20.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                    ) {
+                        StatColumn(catalogCount.toString(), stringResource(R.string.hub_stat_catalog))
+                        StatColumn(downloadedCount.toString(), stringResource(R.string.hub_stat_downloaded))
+                        StatColumn(queuedCount.toString(), stringResource(R.string.hub_stat_queued))
+                    }
+                }
+            }
+
+            item {
+                Card(
+                    shape = MaterialTheme.shapes.extraLarge,
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.secondaryContainer,
                         contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
                     ),
                 ) {
-                    Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Rounded.Info, null, Modifier.size(20.dp))
-                        Spacer(Modifier.width(10.dp))
-                        Text(stringResource(R.string.hub_info_card), style = MaterialTheme.typography.bodySmall)
+                    Column(Modifier.padding(16.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Rounded.Info, null, Modifier.size(20.dp))
+                            Spacer(Modifier.width(10.dp))
+                            Text(stringResource(R.string.hub_info_card), style = MaterialTheme.typography.bodySmall)
+                        }
+                        Spacer(Modifier.height(8.dp))
+                        Text(stringResource(R.string.hub_auto_import_note), style = MaterialTheme.typography.bodySmall)
                     }
                 }
             }
@@ -244,6 +283,14 @@ fun FirmwareHubScreen(
 }
 
 @Composable
+private fun StatColumn(value: String, label: String) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(value, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+        Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+}
+
+@Composable
 private fun FirmwareCard(
     entry: FirmwareCatalog.Entry,
     state: FirmwareDownloads.EntryState,
@@ -260,8 +307,11 @@ private fun FirmwareCard(
     onRemoveImport: () -> Unit,
 ) {
     val ctx = LocalContext.current
-    Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)) {
-        Column(Modifier.padding(16.dp)) {
+    Card(
+        shape = MaterialTheme.shapes.extraLarge,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+    ) {
+        Column(Modifier.padding(16.dp).animateContentSize()) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 BrandBadge(entry.brand)
                 Spacer(Modifier.width(12.dp))
@@ -425,8 +475,11 @@ private fun ChecksumBadge(entry: FirmwareCatalog.Entry, verdict: FirmwareDownloa
 
 @Composable
 private fun ImportQueueCard(item: FirmwareImportQueue.Item) {
-    Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)) {
-        Column(Modifier.padding(14.dp)) {
+    Card(
+        shape = MaterialTheme.shapes.extraLarge,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+    ) {
+        Column(Modifier.padding(14.dp).animateContentSize()) {
             Text(item.file, style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
             if (item.progress in 0f..1f && item.status == FirmwareImportQueue.Status.RUNNING) {
                 val queueProgressLabel = stringResource(R.string.hub_progress_label) + " " + item.step

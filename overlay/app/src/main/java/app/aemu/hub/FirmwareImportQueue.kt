@@ -42,12 +42,15 @@ object FirmwareImportQueue {
     private var active: Importer? = null
     private var worker: Job? = null
 
+    /** Set by the Hub screen so the library refreshes after an auto-imported firmware appears. */
+    var globalOnImported: (() -> Unit)? = null
+
     @Synchronized
     fun enqueue(
         ctx: Context,
         entry: FirmwareCatalog.Entry,
         file: File,
-        onImported: (() -> Unit)? = null,
+        onImported: (() -> Unit)? = globalOnImported,
     ) {
         if (_items.value.any { it.id == entry.id && it.status.let { s -> s == Status.QUEUED || s == Status.RUNNING } }) return
         _items.update { it + Item(entry.id, entry.fileName, Status.QUEUED, "Waiting") }

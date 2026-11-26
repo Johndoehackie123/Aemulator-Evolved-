@@ -249,4 +249,8 @@
     <string name="hub_status_failed">failed</string>
     <string name="hub_status_cancelled">cancelled</string>
     <string name="hub_progress_label">Download progress</string>
+    <string name="hub_stat_catalog">Catalog</string>
+    <string name="hub_stat_downloaded">Downloaded</string>
+    <string name="hub_stat_queued">In queue</string>
+    <string name="hub_auto_import_note">Verified downloads are queued for import automatically. Unverified files still ask you first.</string>
 </resources>
