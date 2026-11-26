@@ -237,6 +237,11 @@ fun Library(model: LibraryModel) {
             title = { Text(stringResource(R.string.app_name)) },
             subtitle = { Text(stringResource(R.string.lib_subtitle)) },
             actions = {
+                if (navStyle != AppNavStyle.CLASSIC) {
+                    IconButton(onClick = { pick.launch(arrayOf("*/*")) }) {
+                        Icon(Icons.Rounded.Add, stringResource(R.string.add_import))
+                    }
+                }
                 IconButton(onClick = { help = true }) { Icon(Icons.Rounded.Info, stringResource(R.string.help)) }
                 if (navStyle == AppNavStyle.DRAWER) {
                     IconButton(onClick = { scope.launch { drawerState.open() } }) {
@@ -308,7 +313,6 @@ fun Library(model: LibraryModel) {
             onSelect = ::selectDestination,
             drawerState = drawerState,
             topBar = appBar,
-            fab = fab,
         ) { pad ->
             UpdatesScreen(version = BuildConfig.VERSION_NAME, state = updateState, onCheck = ::checkForUpdates)
         }
@@ -318,7 +322,6 @@ fun Library(model: LibraryModel) {
             onSelect = ::selectDestination,
             drawerState = drawerState,
             topBar = appBar,
-            fab = fab,
         ) { pad -> machinesContent(pad) }
     }
 
@@ -387,7 +390,7 @@ private fun UpdatesScreen(version: String, state: UpdateState, onCheck: () -> Un
     Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Card(
             shape = MaterialTheme.shapes.extraLarge,
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+            colors = glassCardColors(MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.onPrimaryContainer),
         ) {
             Column(Modifier.padding(20.dp)) {
                 Text(stringResource(R.string.as_updates_title), style = MaterialTheme.typography.headlineSmall)
@@ -565,7 +568,7 @@ private fun StorageAccessCard() {
         onDispose { life.lifecycle.removeObserver(obs) }
     }
     if (granted) return
-    Card(shape = MaterialTheme.shapes.large, colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)) {
+    Card(shape = MaterialTheme.shapes.large, colors = glassCardColors(MaterialTheme.colorScheme.tertiaryContainer)) {
         Column(Modifier.padding(20.dp)) {
             Text(stringResource(R.string.storage_title), style = MaterialTheme.typography.titleMedium)
             Spacer(Modifier.height(4.dp))
@@ -601,7 +604,7 @@ private fun EmptyState(onHelp: () -> Unit) {
 @Composable
 private fun ImportCard(s: ImportState, onCancel: () -> Unit, onDismiss: () -> Unit) {
     Card(
-        colors = CardDefaults.cardColors(containerColor = if (s.error != null) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.secondaryContainer),
+        colors = glassCardColors(if (s.error != null) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.secondaryContainer),
         shape = MaterialTheme.shapes.large,
     ) {
         Column(Modifier.padding(20.dp)) {

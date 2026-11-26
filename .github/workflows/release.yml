@@ -17,7 +17,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -e
-          VERSION="0.0.0.7"
+          VERSION="0.0.0.8"
           TAG="v${VERSION}-evolved"
           if gh release view "$TAG" >/dev/null 2>&1; then
             echo "Release $TAG already exists"

@@ -120,7 +120,9 @@ fun MachineCard(
         onClick = onStart,
         interactionSource = press,
         shape = MaterialTheme.shapes.extraLarge,
-        modifier = modifier.graphicsLayer { scaleX = scale; scaleY = scale },
+        colors = glassElevatedCardColors(MaterialTheme.colorScheme.surfaceContainer),
+        modifier = modifier.graphicsLayer { scaleX = scale; scaleY = scale }
+            .glassBorder(MaterialTheme.shapes.extraLarge),
     ) {
         Box(
             Modifier.padding(8.dp).fillMaxWidth().aspectRatio(0.9f).clip(RoundedCornerShape(24.dp))
@@ -258,10 +260,8 @@ fun LibrarySheet(
             ElevatedCard(
                 onClick = onImportFile,
                 shape = MaterialTheme.shapes.extraLarge,
-                colors = androidx.compose.material3.CardDefaults.elevatedCardColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                ),
-                modifier = Modifier.fillMaxWidth()
+                colors = glassElevatedCardColors(MaterialTheme.colorScheme.primaryContainer),
+                modifier = Modifier.fillMaxWidth().glassBorder(MaterialTheme.shapes.extraLarge)
             ) {
                 Row(
                     Modifier.padding(16.dp),

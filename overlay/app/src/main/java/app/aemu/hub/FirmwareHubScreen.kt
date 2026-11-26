@@ -73,6 +73,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import app.aemu.R
+import app.aemu.ui.glassBorder
+import app.aemu.ui.glassCardColors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -171,10 +173,7 @@ fun FirmwareHubScreen(
             item(span = fullSpan) {
                 Card(
                     shape = MaterialTheme.shapes.extraLarge,
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    ),
+                    colors = glassCardColors(MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.onPrimaryContainer),
                 ) {
                     Row(
                         Modifier.fillMaxWidth().padding(20.dp),
@@ -199,10 +198,7 @@ fun FirmwareHubScreen(
             item(span = fullSpan) {
                 Card(
                     shape = MaterialTheme.shapes.extraLarge,
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                    ),
+                    colors = glassCardColors(MaterialTheme.colorScheme.secondaryContainer, MaterialTheme.colorScheme.onSecondaryContainer),
                 ) {
                     Column(Modifier.padding(16.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -642,9 +638,9 @@ private fun FirmwareCard(
 ) {
     val ctx = LocalContext.current
     Card(
-        modifier = modifier,
+        modifier = modifier.glassBorder(MaterialTheme.shapes.extraLarge),
         shape = MaterialTheme.shapes.extraLarge,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+        colors = glassCardColors(),
     ) {
         Column(Modifier.padding(16.dp).animateContentSize()) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -674,7 +670,7 @@ private fun FirmwareCard(
 private fun CompactFirmwareRow(view: EntryView, fields: List<HubField>, actions: EntryActions) {
     Card(
         shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+        colors = glassCardColors(),
     ) {
         Column(Modifier.padding(12.dp).animateContentSize()) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -704,7 +700,7 @@ private fun CompactFirmwareRow(view: EntryView, fields: List<HubField>, actions:
 private fun ListFirmwareRow(view: EntryView, fields: List<HubField>, actions: EntryActions) {
     Card(
         shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+        colors = glassCardColors(),
     ) {
         Row(Modifier.padding(14.dp), verticalAlignment = Alignment.Top) {
             BrandBadge(view.entry.brand)
@@ -764,10 +760,7 @@ private fun FeaturedFirmwareCard(view: EntryView, fields: List<HubField>, action
     val ctx = LocalContext.current
     Card(
         shape = MaterialTheme.shapes.extraLarge,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-        ),
+        colors = glassCardColors(MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.onPrimaryContainer),
     ) {
         Column(Modifier.padding(20.dp).animateContentSize()) {
             Text(
@@ -797,7 +790,7 @@ private fun FirmwareTable(
 ) {
     Card(
         shape = MaterialTheme.shapes.extraLarge,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+        colors = glassCardColors(),
     ) {
         Column(Modifier.horizontalScroll(rememberScrollState()).padding(12.dp)) {
             Row {
@@ -858,7 +851,7 @@ private fun FirmwareCarousel(
                 Card(
                     Modifier.width(240.dp),
                     shape = MaterialTheme.shapes.large,
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+                    colors = glassCardColors(),
                 ) {
                     Column(Modifier.padding(14.dp).animateContentSize()) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -909,7 +902,7 @@ private fun StatColumn(value: String, label: String) {
 private fun ImportQueueCard(item: FirmwareImportQueue.Item) {
     Card(
         shape = MaterialTheme.shapes.extraLarge,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+        colors = glassCardColors(MaterialTheme.colorScheme.surfaceContainerLow),
     ) {
         Column(Modifier.padding(14.dp).animateContentSize()) {
             Text(item.file, style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)

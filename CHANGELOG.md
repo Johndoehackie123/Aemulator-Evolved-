@@ -4,6 +4,13 @@ Release notes are generated from the latest section of this file by
 `.github/workflows/release.yml`. Add a `## vX.Y.Z` heading above with bullet points before
 dispatching a release.
 
+## v0.0.0.8
+
+- Removed the floating action button from all non-Classic navigation styles; import is now in the
+  top app bar for those styles.
+- Added a Glass theme toggle in Settings → Theme. It uses frosted translucent surfaces, luminous
+  edges and a glass-tinted background while keeping the expressive Material 3 motion and type.
+
 ## v0.0.0.7
 
 - Fixed navigation styles not applying: the selected style is now an observable preference, so
