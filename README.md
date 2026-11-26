@@ -58,8 +58,14 @@ commits) and on manual dispatch: `.github/workflows/build-apk.yml`.
 
 The CI build commits the resulting arm64-v8a debug APK to
 [`artifacts/Aemulator-Evolved-standard-debug.apk`](artifacts/) together with a SHA-256
-checksum file and a ZIP contents listing. It is also attached to the workflow run as an
-artifact named `Aemulator-Evolved-arm64-debug`.
+checksum file, a ZIP contents listing and the unit-test summary. It is also attached to
+the workflow run as an artifact named `Aemulator-Evolved-arm64-debug`.
+
+Direct download from the branch:
+`https://raw.githubusercontent.com/Johndoehackie123/Aemulator-Evolved-/arena/f3a2b860-aemulator-evolved/artifacts/Aemulator-Evolved-standard-debug.apk`
+
+Verified SHA-256 of the first successful build:
+`5e9035aee5dd45bbbc4057cc8c5c212d5682e434b5334f46fe416ff4a9ed5e49`
 
 - Requires Android 8.0+ (API 26), arm64-v8a, ~1–3 GB free storage per firmware.
 - `targetSdk 28` is inherited from upstream; this is intentional (guest binaries need it).

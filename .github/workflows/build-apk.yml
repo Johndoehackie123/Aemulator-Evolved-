@@ -67,6 +67,17 @@ jobs:
           git pull --rebase origin arena/f3a2b860-aemulator-evolved || true
           git push origin HEAD:arena/f3a2b860-aemulator-evolved || true
 
+      - name: Record unit-test results
+        if: always()
+        run: |
+          mkdir -p fork/artifacts
+          {
+            echo "Gradle build: $([ -f fork/build-report.txt ] && tail -1 fork/build-report.txt || echo 'see workflow log')"
+            echo "Unit test suites (app/src/test):"
+            grep -h '<testsuite' upstream/app/build/test-results/testStandardDebugUnitTest/*.xml 2>/dev/null || echo "no XML results found"
+          } > fork/artifacts/unit-test-summary.txt
+          cat fork/artifacts/unit-test-summary.txt
+
       - name: Collect signed/unsigned APK and checksum
         run: |
           set -e
@@ -99,5 +110,6 @@ jobs:
             fork/artifacts/Aemulator-Evolved-standard-debug.apk
             fork/artifacts/Aemulator-Evolved-standard-debug.apk.sha256
             fork/artifacts/APK-contents.txt
+            fork/artifacts/unit-test-summary.txt
           if-no-files-found: error
           retention-days: 90
