@@ -22,38 +22,38 @@ jobs:
       - name: Visit folder and record state
         run: |
           cat > visit.mjs <<'EOF'
-import { chromium } from 'playwright';
-import fs from 'fs';
-const log = [];
-const browser = await chromium.launch();
-const context = await browser.newContext({ acceptDownloads: true, viewport: { width: 1400, height: 1000 } });
-const page = await context.newPage();
-page.on('console', m => log.push('CONSOLE ' + m.type() + ': ' + m.text()));
-page.on('pageerror', e => log.push('PAGEERROR: ' + e.message));
-page.on('response', async r => {
-  const u = r.url();
-  if (/api\.file\.kiwi|filekiwi|__download|download/i.test(u)) {
-    let body = '';
-    try { body = (await r.text()).slice(0, 2000); } catch {}
-    log.push('RESP ' + r.status() + ' ' + u + ' BODY ' + body);
-  }
-});
-try {
-  await page.goto('https://file.kiwi/717a5d20#48gleg5PFdqV_YpmYgskNw', { waitUntil: 'domcontentloaded', timeout: 60000 });
-  await page.waitForTimeout(20000);
-  log.push('URL: ' + page.url());
-  log.push('TITLE: ' + await page.title());
-  log.push('TEXT: ' + ((await page.locator('body').innerText()).slice(0, 12000)));
-  log.push('HTML: ' + (await page.content()).slice(0, 30000));
-  await page.screenshot({ path: 'folder.png', fullPage: true });
-  const buttons = await page.locator('button, a').allTextContents();
-  log.push('BUTTONS: ' + JSON.stringify(buttons.slice(0, 200)));
-} catch (e) {
-  log.push('FATAL: ' + e.stack);
-}
-fs.writeFileSync('visit-log.txt', log.join('\n'));
-await browser.close();
-EOF
+          import { chromium } from 'playwright';
+          import fs from 'fs';
+          const log = [];
+          const browser = await chromium.launch();
+          const context = await browser.newContext({ acceptDownloads: true, viewport: { width: 1400, height: 1000 } });
+          const page = await context.newPage();
+          page.on('console', m => log.push('CONSOLE ' + m.type() + ': ' + m.text()));
+          page.on('pageerror', e => log.push('PAGEERROR: ' + e.message));
+          page.on('response', async r => {
+            const u = r.url();
+            if (/api\.file\.kiwi|filekiwi|__download|download/i.test(u)) {
+              let body = '';
+              try { body = (await r.text()).slice(0, 2000); } catch {}
+              log.push('RESP ' + r.status() + ' ' + u + ' BODY ' + body);
+            }
+          });
+          try {
+            await page.goto('https://file.kiwi/717a5d20#48gleg5PFdqV_YpmYgskNw', { waitUntil: 'domcontentloaded', timeout: 60000 });
+            await page.waitForTimeout(20000);
+            log.push('URL: ' + page.url());
+            log.push('TITLE: ' + await page.title());
+            log.push('TEXT: ' + ((await page.locator('body').innerText()).slice(0, 12000)));
+            log.push('HTML: ' + (await page.content()).slice(0, 30000));
+            await page.screenshot({ path: 'folder.png', fullPage: true });
+            const buttons = await page.locator('button, a').allTextContents();
+            log.push('BUTTONS: ' + JSON.stringify(buttons.slice(0, 200)));
+          } catch (e) {
+            log.push('FATAL: ' + e.stack);
+          }
+          fs.writeFileSync('visit-log.txt', log.join('\n'));
+          await browser.close();
+          EOF
           node visit.mjs || true
           git config user.name "fetch-bot"; git config user.email "fetch@example.com"
           git add visit-log.txt folder.png || true
