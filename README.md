@@ -39,7 +39,10 @@ Settings → Updates → "Check for updates" uses your fork's APK assets.
   Every layout uses the same actions and verification rules.
 - **Main-app navigation** — Classic (unchanged default), Bottom bar, Navigation rail,
   Modal drawer, Top tabs and Side strip. Settings → Navigation style saves the choice.
-  The shell reaches Machines, Firmware Hub, Settings and Updates.
+  The shell reaches Machines, Firmware Hub, Settings and Updates. The FAB is Classic-only;
+  other styles put Import in the top bar.
+- **Glass theme** — Settings → Theme → Glass theme adds frosted translucent surfaces and
+  luminous edges across the library, Hub and settings.
 
 ## Signing and updates
 

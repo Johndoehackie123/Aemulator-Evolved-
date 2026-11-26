@@ -171,14 +171,12 @@ fun AppNavigationShell(
     onSelect: (AppDestination) -> Unit,
     drawerState: DrawerState,
     topBar: @Composable () -> Unit,
-    fab: @Composable () -> Unit,
     content: @Composable (PaddingValues) -> Unit,
 ) {
     when (style) {
         AppNavStyle.BOTTOM -> Scaffold(
             topBar = topBar,
             bottomBar = { AppBottomBar(destination, onSelect) },
-            floatingActionButton = fab,
         ) { pad -> content(pad) }
 
         AppNavStyle.TABS -> Scaffold(
@@ -188,26 +186,25 @@ fun AppNavigationShell(
                     AppTopTabs(destination, onSelect)
                 }
             },
-            floatingActionButton = fab,
         ) { pad -> content(pad) }
 
         AppNavStyle.RAIL -> Row {
             AppSideNav(destination, onSelect)
-            Scaffold(modifier = Modifier.weight(1f), topBar = topBar, floatingActionButton = fab) { pad -> content(pad) }
+            Scaffold(modifier = Modifier.weight(1f), topBar = topBar) { pad -> content(pad) }
         }
 
         AppNavStyle.SIDE -> Row {
             AppSideNav(destination, onSelect, compact = true)
-            Scaffold(modifier = Modifier.weight(1f), topBar = topBar, floatingActionButton = fab) { pad -> content(pad) }
+            Scaffold(modifier = Modifier.weight(1f), topBar = topBar) { pad -> content(pad) }
         }
 
         AppNavStyle.DRAWER -> ModalNavigationDrawer(
             drawerState = drawerState,
             drawerContent = { AppDrawerContent(destination, onSelect) },
         ) {
-            Scaffold(topBar = topBar, floatingActionButton = fab) { pad -> content(pad) }
+            Scaffold(topBar = topBar) { pad -> content(pad) }
         }
 
-        AppNavStyle.CLASSIC -> Scaffold(topBar = topBar, floatingActionButton = fab) { pad -> content(pad) }
+        AppNavStyle.CLASSIC -> Scaffold(topBar = topBar) { pad -> content(pad) }
     }
 }

@@ -86,6 +86,8 @@
     <string name="as_theme_dark">Dark</string>
     <string name="as_dynamic">Dynamic colors</string>
     <string name="as_dynamic_sub">Colors from your wallpaper (Android 12+)</string>
+    <string name="as_glass">Glass theme</string>
+    <string name="as_glass_sub">Frosted, translucent surfaces with luminous edges over the app background.</string>
     <string name="as_defaults">Defaults for new systems</string>
     <string name="as_defaults_sub">Applied to every firmware you import from now on</string>
     <string name="as_links">Project</string>

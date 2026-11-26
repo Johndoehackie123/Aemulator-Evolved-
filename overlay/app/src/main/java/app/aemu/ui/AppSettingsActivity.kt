@@ -122,6 +122,7 @@ fun AppSettings(onBack: () -> Unit, onRestyle: () -> Unit) {
     var defaults by remember { mutableStateOf(AppPrefs.defaults(ctx)) }
     var theme by remember { mutableStateOf(AppPrefs.theme(ctx)) }
     var dynamic by remember { mutableStateOf(AppPrefs.dynamicColor(ctx)) }
+    var glass by remember { mutableStateOf(GlassSettings.load(ctx)) }
     var navStyle by remember { mutableStateOf(AppNavSettings.load(ctx)) }
     val scope = rememberCoroutineScope()
     var autoUpdates by remember { mutableStateOf(AppPrefs.autoCheckUpdates(ctx)) }
@@ -242,6 +243,9 @@ fun AppSettings(onBack: () -> Unit, onRestyle: () -> Unit) {
                             dynamic = it; AppPrefs.setDynamicColor(ctx, it)
                         }
                     }
+                    Toggle(stringResource(R.string.as_glass), stringResource(R.string.as_glass_sub), glass) {
+                        glass = it; GlassSettings.set(ctx, it)
+                    }
                 }
             }
 
@@ -333,7 +337,7 @@ fun AppSettings(onBack: () -> Unit, onRestyle: () -> Unit) {
 
 @Composable
 private fun AboutCard() {
-    Card(shape = MaterialTheme.shapes.extraLarge, colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)) {
+    Card(shape = MaterialTheme.shapes.extraLarge, colors = glassCardColors(MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.onPrimaryContainer)) {
         Row(Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
             Image(painterResource(R.drawable.logo), null, Modifier.size(64.dp).clip(RoundedCornerShape(20.dp)))
             Spacer(Modifier.width(16.dp))
@@ -357,7 +361,7 @@ private fun Section(title: String, subtitle: String? = null, content: @Composabl
             Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(start = 8.dp, bottom = 8.dp))
         }
-        Card(shape = MaterialTheme.shapes.large, colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)) {
+        Card(shape = MaterialTheme.shapes.large, colors = glassCardColors(MaterialTheme.colorScheme.surfaceContainer)) {
             Column(Modifier.padding(vertical = 8.dp)) { content() }
         }
     }
