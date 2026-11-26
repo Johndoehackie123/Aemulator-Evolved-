@@ -118,7 +118,6 @@ fun FirmwareHubScreen(
     val views = visibleEntries.map { buildView(ctx, it, downloads, downloadQueue, importItems) }
     val fields = HubSettings.fieldsFor(settings.layout)
     val fullSpan = StaggeredGridItemSpan.FullLine
-    val singleSpan = StaggeredGridItemSpan.SingleLine
     val fullWidthLayout = settings.layout !in setOf(HubSettings.Layout.GRID, HubSettings.Layout.MASONRY)
 
     fun actionsFor(entry: FirmwareCatalog.Entry) = buildActions(ctx, scope, entry, { confirmUnverified = it }, onImported)
@@ -254,27 +253,13 @@ fun FirmwareHubScreen(
 
                 else -> {
                     views.forEach { view ->
-                        item(key = view.entry.id, span = if (fullWidthLayout) fullSpan else singleSpan) {
-                            when (settings.layout) {
-                                HubSettings.Layout.COMPACT -> CompactFirmwareRow(view, fields, actionsFor(view.entry))
-                                HubSettings.Layout.LIST -> ListFirmwareRow(view, fields, actionsFor(view.entry))
-                                HubSettings.Layout.TIMELINE -> TimelineFirmwareRow(view, fields, actionsFor(view.entry))
-                                HubSettings.Layout.TEXT -> TextFirmwareRow(view, fields, actionsFor(view.entry))
-                                else -> FirmwareCard(
-                                    modifier = if (settings.layout == HubSettings.Layout.MASONRY) {
-                                        val accent = when {
-                                            view.verdict == FirmwareDownloads.Verdict.VERIFIED ->
-                                                MaterialTheme.colorScheme.tertiary
-                                            view.verdict == FirmwareDownloads.Verdict.UNVERIFIED ->
-                                                MaterialTheme.colorScheme.error
-                                            else -> MaterialTheme.colorScheme.primary
-                                        }
-                                        Modifier.border(2.dp, accent, MaterialTheme.shapes.extraLarge)
-                                    } else Modifier,
-                                    view = view,
-                                    fields = fields,
-                                    actions = actionsFor(view.entry),
-                                )
+                        if (fullWidthLayout) {
+                            item(key = view.entry.id, span = fullSpan) {
+                                LayoutItem(view, fields, actionsFor(view.entry), settings.layout)
+                            }
+                        } else {
+                            item(key = view.entry.id) {
+                                LayoutItem(view, fields, actionsFor(view.entry), settings.layout)
                             }
                         }
                     }
@@ -621,6 +606,34 @@ private fun SourceLink(entry: FirmwareCatalog.Entry, ctx: Context) {
 // ---------------------------------------------------------------------------
 
 @Composable
+private fun LayoutItem(
+    view: EntryView,
+    fields: List<HubField>,
+    actions: EntryActions,
+    layout: HubSettings.Layout,
+) {
+    when (layout) {
+        HubSettings.Layout.COMPACT -> CompactFirmwareRow(view, fields, actions)
+        HubSettings.Layout.LIST -> ListFirmwareRow(view, fields, actions)
+        HubSettings.Layout.TIMELINE -> TimelineFirmwareRow(view, fields, actions)
+        HubSettings.Layout.TEXT -> TextFirmwareRow(view, fields, actions)
+        else -> FirmwareCard(
+            modifier = if (layout == HubSettings.Layout.MASONRY) {
+                val accent = when {
+                    view.verdict == FirmwareDownloads.Verdict.VERIFIED -> MaterialTheme.colorScheme.tertiary
+                    view.verdict == FirmwareDownloads.Verdict.UNVERIFIED -> MaterialTheme.colorScheme.error
+                    else -> MaterialTheme.colorScheme.primary
+                }
+                Modifier.border(2.dp, accent, MaterialTheme.shapes.extraLarge)
+            } else Modifier,
+            view = view,
+            fields = fields,
+            actions = actions,
+        )
+    }
+}
+
+@Composable
 private fun FirmwareCard(
     modifier: Modifier = Modifier,
     view: EntryView,
@@ -873,8 +886,10 @@ private fun FirmwareCarousel(
 private fun TextFirmwareRow(view: EntryView, fields: List<HubField>, actions: EntryActions) {
     Column(Modifier.padding(horizontal = 4.dp, vertical = 8.dp).animateContentSize()) {
         Text(view.entry.device, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+        val parts = mutableListOf<String>()
+        fields.forEach { field -> parts.add(fieldLabel(field) + ": " + fieldValue(view, field)) }
         Text(
-            fields.joinToString(" · ") { "${fieldLabel(it)}: ${fieldValue(view, it)}" },
+            parts.joinToString(" · "),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
