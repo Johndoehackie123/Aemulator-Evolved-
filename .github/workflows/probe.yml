@@ -39,6 +39,7 @@ jobs:
           done < scripts.txt
           } > probe-results.txt 2>&1
           git config user.name "probe-bot"; git config user.email "probe@example.com"
-          git add probe-results.txt
+          cp page.html probe-page.html
+          git add probe-results.txt probe-page.html
           git commit -m "probe results" || true
           git push origin HEAD:arena/f3a2b860-aemulator-evolved || true
