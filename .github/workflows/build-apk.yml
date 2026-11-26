@@ -1,0 +1,91 @@
+name: Build AEmulator Firmware Hub APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [arena/f3a2b860-aemulator-evolved]
+    paths-ignore:
+      - 'artifacts/**'
+      - '*.log'
+      - '*.txt'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Check out this fork
+        uses: actions/checkout@v4
+        with:
+          path: fork
+
+      # The engine assets are ~500 MB and are not duplicated in this fork's source overlay.
+      # Restore the exact pinned upstream revision and apply our changes on top of it.
+      - name: Restore pinned upstream AEmulator source
+        uses: actions/checkout@v4
+        with:
+          repository: uxazu/AEmulator
+          ref: 3b97ed585e484395c455aca7338d7ddcbf955d9f
+          path: upstream
+
+      - name: Apply Firmware Hub overlay
+        run: |
+          cp -a fork/overlay/. upstream/
+          # Upstream ships a developer-specific Windows JDK path in gradle.properties.
+          sed -i '/^org\.gradle\.java\.home=/d' upstream/gradle.properties
+          # Give Kotlin enough heap/metaspace; upstream's default 768 MB caused OOM locally.
+          sed -i 's/^org\.gradle\.jvmargs=.*/org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8/' upstream/gradle.properties
+          echo "sdk.dir=$ANDROID_HOME" > upstream/local.properties
+          chmod +x upstream/gradlew
+          diff -q fork/overlay/app/src/main/java/app/aemu/hub/FirmwareCatalog.kt upstream/app/src/main/java/app/aemu/hub/FirmwareCatalog.kt
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Run checksum/catalog unit tests and build arm64 debug APK
+        working-directory: upstream
+        run: |
+          ./gradlew --no-daemon --stacktrace \
+            :app:testStandardDebugUnitTest \
+            :app:assembleStandardDebug
+
+      - name: Collect signed/unsigned APK and checksum
+        run: |
+          set -e
+          mkdir -p fork/artifacts
+          apk=$(find upstream/app/build/outputs/apk/standard/debug -name '*.apk' -type f | head -1)
+          test -n "$apk"
+          cp "$apk" fork/artifacts/Aemulator-Evolved-standard-debug.apk
+          cd fork/artifacts
+          sha256sum Aemulator-Evolved-standard-debug.apk > Aemulator-Evolved-standard-debug.apk.sha256
+          ls -lh Aemulator-Evolved-standard-debug.apk
+          unzip -l Aemulator-Evolved-standard-debug.apk > APK-contents.txt
+          echo "lib/arm64-v8a present:" && grep -c 'lib/arm64-v8a/' APK-contents.txt
+
+      - name: Publish APK into this branch for download
+        working-directory: fork
+        run: |
+          git config user.name "AEmulator build bot"
+          git config user.email "build@example.com"
+          git add artifacts
+          if git diff --cached --quiet; then echo "APK unchanged"; exit 0; fi
+          git commit -m "CI: build arm64 Firmware Hub APK"
+          git pull --rebase origin arena/f3a2b860-aemulator-evolved || true
+          git push origin HEAD:arena/f3a2b860-aemulator-evolved
+
+      - name: Upload APK as workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Aemulator-Evolved-arm64-debug
+          path: |
+            fork/artifacts/Aemulator-Evolved-standard-debug.apk
+            fork/artifacts/Aemulator-Evolved-standard-debug.apk.sha256
+            fork/artifacts/APK-contents.txt
+          if-no-files-found: error
+          retention-days: 90
