@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- создано app/l10n/gen.py, правьте langs/*.py -->
 <resources>
-    <string name="app_name" translatable="false">AEmulator</string>
+    <string name="app_name" translatable="false">AEmulator Evolved</string>
     <string name="channel_vm">Running system</string>
     <string name="vm_running">%1$s is running</string>
     <string name="vm_running_hint">Tap to return to the system screen</string>
@@ -242,7 +242,7 @@
     <string name="hub_dialog_text">%1$s\n\nThe file’s size was checked, but its content could not be authenticated. Import it only if you obtained it from a source you trust.</string>
     <string name="hub_import_anyway">Import anyway</string>
     <string name="hub_cancel">Cancel</string>
-    <string name="hub_footer">AEmulator is GPL-3.0 and based on uxazu/AEmulator, which is based on the original SENSES emulator by Istratii-tech. Firmware belongs to its respective owners; this app ships no firmware. Compatibility notes are community reports, not guarantees.</string>
+    <string name="hub_footer">AEmulator Evolved is a GPL-3.0 fork of uxazu/AEmulator, which is based on the original SENSES emulator by Istratii-tech. Firmware belongs to its respective owners; this app ships no firmware. Compatibility notes are community reports, not guarantees.</string>
     <string name="hub_status_queued">queued</string>
     <string name="hub_status_running">running</string>
     <string name="hub_status_done">done</string>
@@ -276,4 +276,7 @@
     <string name="hub_stat_downloaded">Downloaded</string>
     <string name="hub_stat_queued">In queue</string>
     <string name="hub_auto_import_note">Verified downloads are queued for import automatically. Unverified files still ask you first.</string>
+    <string name="as_fork">Fork repository</string>
+    <string name="as_upstream">Upstream project</string>
+    <string name="update_latest_github">Latest version on GitHub: %1$s</string>
 </resources>
