@@ -16,9 +16,14 @@ jobs:
           node-version: 20
       - name: Install Playwright
         run: |
-          npm init -y >/dev/null 2>&1
-          npm i playwright@1.58.2 --silent
-          npx playwright install --with-deps chromium >/dev/null 2>&1
+          set +e
+          { npm init -y; npm i playwright@1.58.2; npx playwright install --with-deps chromium; } > install-log.txt 2>&1
+          git config user.name "fetch-bot"; git config user.email "fetch@example.com"
+          git add install-log.txt || true
+          git commit -m "playwright install log" || true
+          git push origin HEAD:arena/f3a2b860-aemulator-evolved || true
+          tail -30 install-log.txt
+          test -d node_modules/playwright
       - name: Visit folder and record state
         run: |
           cat > visit.mjs <<'EOF'
