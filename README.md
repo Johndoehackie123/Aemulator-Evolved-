@@ -68,7 +68,7 @@ Direct download from the branch:
 `https://raw.githubusercontent.com/Johndoehackie123/Aemulator-Evolved-/arena/f3a2b860-aemulator-evolved/artifacts/Aemulator-Evolved-standard-debug.apk`
 
 Verified SHA-256 of the latest successful build:
-`59fbb08d384ab78870931ccee776efa61c3a2199a315272214b6a696590da6d2`
+`133bbe3fa84613894a4b0b3b25159847ae4e58a10032df379eec2d2755675961`
 
 - Requires Android 8.0+ (API 26), arm64-v8a, ~1–3 GB free storage per firmware.
 - `targetSdk 28` is inherited from upstream; this is intentional (guest binaries need it).
