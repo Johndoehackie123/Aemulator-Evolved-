@@ -37,6 +37,25 @@ Settings → Updates → "Check for updates" uses your fork's APK assets.
 - **Ten layouts** — Cards (default), Compact, Grid, Mosaic, List, Timeline, Featured, Table,
   Carousel and Text only. Switch between them in the Hub settings sheet; your choice persists.
   Every layout uses the same actions and verification rules.
+- **Main-app navigation** — Classic (unchanged default), Bottom bar, Navigation rail,
+  Modal drawer, Top tabs and Side strip. Settings → Navigation style saves the choice.
+  The shell reaches Machines, Firmware Hub, Settings and Updates.
+
+## Signing and updates
+
+The APK is signed with the fixed keystore in `signing/`, so every release has the same app
+signature and can upgrade in place. CI verifies each APK with
+`apksigner verify --print-certs` and refuses to publish a mismatched certificate.
+
+Pinned signing certificate SHA-256:
+`8220F2EA53A512C7F8F7D576A8796D744799602F083C0B83C56A05511D285C3A`
+(see `signing/CERTIFICATE_SHA256.txt`). The keystore and its password are in the repository:
+this is a **public** sideloading key, not a secret. Because earlier releases used a
+runner-generated debug key, install v0.0.0.6 once over the old app (one-time uninstall),
+then all later releases update without uninstalling.
+
+Release notes are generated from `CHANGELOG.md`; every release includes the changes, APK
+SHA-256, signing-certificate fingerprint and unit-test count.
 
 ## Customising layouts
 

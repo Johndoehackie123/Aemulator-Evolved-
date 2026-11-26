@@ -1,6 +1,7 @@
 package app.aemu.ui
 
 import android.Manifest
+import android.app.Activity
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -46,6 +47,7 @@ import androidx.compose.material.icons.rounded.Android
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material.icons.rounded.Warning
@@ -55,6 +57,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
@@ -69,6 +72,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -170,6 +174,9 @@ fun Library(model: LibraryModel) {
     var addMenu by remember { mutableStateOf(false) }
     var library by remember { mutableStateOf(false) }
     var showHub by remember { mutableStateOf(false) }
+    var navStyle by remember { mutableStateOf(AppNavSettings.load(ctx)) }
+    var destination by remember { mutableStateOf(AppDestination.MACHINES) }
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
     var containerFrom by remember { mutableStateOf<GuestImage?>(null) }
     val scroll = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
@@ -177,17 +184,32 @@ fun Library(model: LibraryModel) {
     var updateState by remember { mutableStateOf<UpdateState>(UpdateState.Idle) }
     var downloadJob by remember { mutableStateOf<Job?>(null) }
 
+    fun checkForUpdates() {
+        updateState = UpdateState.Checking
+        scope.launch {
+            val res = AppUpdateManager.checkLatestRelease()
+            res.fold(
+                onSuccess = { rel ->
+                    if (rel != null && AppUpdateManager.isNewerVersion(rel.versionName, BuildConfig.VERSION_NAME)) {
+                        updateState = UpdateState.Available(rel)
+                    }
+                },
+                onFailure = { err -> updateState = UpdateState.Error(err.localizedMessage ?: "Network error") },
+            )
+        }
+    }
+
+    fun selectDestination(next: AppDestination) {
+        destination = next
+        if (navStyle == AppNavStyle.DRAWER) scope.launch { drawerState.close() }
+    }
+
     LaunchedEffect(Unit) {
         if (app.aemu.AppPrefs.autoCheckUpdates(ctx)) {
             val now = System.currentTimeMillis()
             if (now - app.aemu.AppPrefs.lastUpdateCheck(ctx) > 3600_000L) {
                 app.aemu.AppPrefs.setLastUpdateCheck(ctx, now)
-                val res = AppUpdateManager.checkLatestRelease()
-                res.getOrNull()?.let { rel ->
-                    if (AppUpdateManager.isNewerVersion(rel.versionName, BuildConfig.VERSION_NAME)) {
-                        updateState = UpdateState.Available(rel)
-                    }
-                }
+                checkForUpdates()
             }
         }
     }
@@ -209,23 +231,31 @@ fun Library(model: LibraryModel) {
         }
     }
 
-    Scaffold(
-        modifier = Modifier.nestedScroll(scroll.nestedScrollConnection),
-        topBar = {
-            LargeFlexibleTopAppBar(
-                title = { Text(stringResource(R.string.app_name)) },
-                subtitle = { Text(stringResource(R.string.lib_subtitle)) },
-                actions = { IconButton(onClick = { help = true }) { Icon(Icons.Rounded.Info, stringResource(R.string.help)) }
-                    IconButton(onClick = { ctx.startActivity(Intent(ctx, AppSettingsActivity::class.java)) }) { Icon(Icons.Rounded.Settings, stringResource(R.string.settings)) } },
-                scrollBehavior = scroll,
-            )
-        },
-        floatingActionButton = {
-            HomeFab(expanded = addMenu, onToggle = { addMenu = it },
-                onImport = { pick.launch(arrayOf("*/*")) }, onLibrary = { library = true },
-                onHub = { showHub = true })
-        },
-    ) { pad ->
+    val appBar: @Composable () -> Unit = {
+        LargeFlexibleTopAppBar(
+            title = { Text(stringResource(R.string.app_name)) },
+            subtitle = { Text(stringResource(R.string.lib_subtitle)) },
+            actions = {
+                IconButton(onClick = { help = true }) { Icon(Icons.Rounded.Info, stringResource(R.string.help)) }
+                if (navStyle == AppNavStyle.DRAWER) {
+                    IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                        Icon(Icons.Rounded.Menu, stringResource(R.string.as_nav_drawer))
+                    }
+                }
+                IconButton(onClick = {
+                    if (navStyle == AppNavStyle.CLASSIC) ctx.startActivity(Intent(ctx, AppSettingsActivity::class.java))
+                    else selectDestination(AppDestination.SETTINGS)
+                }) { Icon(Icons.Rounded.Settings, stringResource(R.string.settings)) }
+            },
+            scrollBehavior = scroll,
+        )
+    }
+    val fab: @Composable () -> Unit = {
+        HomeFab(expanded = addMenu, onToggle = { addMenu = it },
+            onImport = { pick.launch(arrayOf("*/*")) }, onLibrary = { library = true },
+            onHub = { if (navStyle == AppNavStyle.CLASSIC) showHub = true else selectDestination(AppDestination.HUB) })
+    }
+    val machinesContent: @Composable (PaddingValues) -> Unit = { pad ->
         val full: androidx.compose.foundation.lazy.grid.LazyGridItemSpanScope.() -> androidx.compose.foundation.lazy.grid.GridItemSpan =
             { androidx.compose.foundation.lazy.grid.GridItemSpan(maxLineSpan) }
         androidx.compose.foundation.lazy.grid.LazyVerticalGrid(
@@ -257,6 +287,38 @@ fun Library(model: LibraryModel) {
                 )
             }
         }
+    }
+
+    if (navStyle == AppNavStyle.CLASSIC) {
+        Scaffold(
+            modifier = Modifier.nestedScroll(scroll.nestedScrollConnection),
+            topBar = appBar,
+            floatingActionButton = fab,
+        ) { pad -> machinesContent(pad) }
+    } else when (destination) {
+        AppDestination.HUB -> FirmwareHubScreen(onBack = { destination = AppDestination.MACHINES }, onImported = model::refresh)
+        AppDestination.SETTINGS -> AppSettings(
+            onBack = { destination = AppDestination.MACHINES },
+            onRestyle = { (ctx as? Activity)?.recreate() },
+        )
+        AppDestination.UPDATES -> AppNavigationShell(
+            style = navStyle,
+            destination = destination,
+            onSelect = ::selectDestination,
+            drawerState = drawerState,
+            topBar = appBar,
+            fab = fab,
+        ) { pad ->
+            UpdatesScreen(version = BuildConfig.VERSION_NAME, state = updateState, onCheck = ::checkForUpdates)
+        }
+        AppDestination.MACHINES -> AppNavigationShell(
+            style = navStyle,
+            destination = destination,
+            onSelect = ::selectDestination,
+            drawerState = drawerState,
+            topBar = appBar,
+            fab = fab,
+        ) { pad -> machinesContent(pad) }
     }
 
     settingsFor?.let { img ->
@@ -317,6 +379,29 @@ AlertDialog(
         onInstall = { file -> AppUpdateManager.installApk(ctx, file) },
         onOpenUrl = { url -> runCatching { ctx.startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url))) } }
     )
+}
+
+@Composable
+private fun UpdatesScreen(version: String, state: UpdateState, onCheck: () -> Unit) {
+    Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Card(
+            shape = MaterialTheme.shapes.extraLarge,
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+        ) {
+            Column(Modifier.padding(20.dp)) {
+                Text(stringResource(R.string.as_updates_title), style = MaterialTheme.typography.headlineSmall)
+                Spacer(Modifier.height(6.dp))
+                Text(stringResource(R.string.as_updates_sub, version), style = MaterialTheme.typography.bodyMedium)
+                Spacer(Modifier.height(16.dp))
+                Button(onClick = onCheck) { Text(stringResource(R.string.as_updates_check)) }
+                Spacer(Modifier.height(8.dp))
+                Text(stringResource(R.string.as_updates_hint), style = MaterialTheme.typography.bodySmall)
+            }
+        }
+        if (state is UpdateState.Checking) {
+            LinearWavyProgressIndicator(Modifier.fillMaxWidth())
+        }
+    }
 }
 
 @Composable

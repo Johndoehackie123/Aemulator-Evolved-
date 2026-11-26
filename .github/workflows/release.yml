@@ -17,32 +17,48 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -e
-          TAG="v0.0.0.5-evolved"
+          VERSION="0.0.0.6"
+          TAG="v${VERSION}-evolved"
           if gh release view "$TAG" >/dev/null 2>&1; then
             echo "Release $TAG already exists"
             exit 0
           fi
-          SHA=$(sha256sum artifacts/Aemulator-Evolved-standard-debug.apk | cut -d' ' -f1)
+
+          APK=artifacts/Aemulator-Evolved-standard-debug.apk
+          SHA=$(sha256sum "$APK" | cut -d' ' -f1)
+          CERT=$(tr -d '[:space:]' < signing/CERTIFICATE_SHA256.txt)
+          TESTS=$(grep -o 'tests="[0-9]*"' artifacts/unit-test-summary.txt | sed 's/.*="//; s/"//' | awk '{s+=$1} END {print s+0}')
+          CHANGES=$(awk -v h="## v${VERSION}" '
+            index($0, h) == 1 { found=1; next }
+            found && /^## / { exit }
+            found { print }
+          ' CHANGELOG.md)
+
           {
-            echo "AEmulator Evolved v0.0.0.5 - Firmware Hub build."
+            echo "AEmulator Evolved v${VERSION} - Firmware Hub build."
             echo ""
             echo "This GPL-3.0 fork is based on uxazu/AEmulator (pinned 3b97ed5) and the original SENSES emulator by Istratii-tech."
             echo "Repository: https://github.com/Johndoehackie123/Aemulator-Evolved-"
             echo "Package ID: app.aemu.evolved - installs side by side with upstream app.aemu."
             echo ""
-            echo "Install: Aemulator-Evolved-standard-debug.apk (arm64-v8a, Android 8.0+/API 26)."
-            echo "SHA-256: $SHA"
+            echo "## Changes"
+            echo "$CHANGES"
             echo ""
-            echo "Included: firmware catalog, one-tap resumable downloads with checksum verification,"
-            echo "import queue with auto-import for verified files, and ten Hub layouts (Cards, Compact,"
-            echo "Grid, Mosaic, List, Timeline, Featured, Table, Carousel and Text only). Hub settings"
-            echo "let you choose and reorder the details shown in each layout. The updater checks this repo."
+            echo "## Verify before installing"
+            echo "APK: \`$APK\`"
+            echo "SHA-256: \`$SHA\`"
+            echo "Signing certificate SHA-256: \`$CERT\`"
+            echo "Every CI build is signed with the committed key in \`signing/\` and checked by \`apksigner verify --print-certs\` before it is published."
+            echo "Once this signed version is installed, later releases upgrade in place without uninstalling."
             echo ""
-            echo "13/13 unit tests passed. Not tested on a physical device."
+            echo "$TESTS unit tests passed. Not tested on a physical device."
           } > /tmp/release-notes.md
+
           gh release create "$TAG" --target main \
-            --title "AEmulator Evolved v0.0.0.5" \
+            --title "AEmulator Evolved v${VERSION}" \
             --notes-file /tmp/release-notes.md \
-            artifacts/Aemulator-Evolved-standard-debug.apk \
-            artifacts/Aemulator-Evolved-standard-debug.apk.sha256
+            "$APK" \
+            "$APK.sha256" \
+            artifacts/signature.txt \
+            signing/CERTIFICATE_SHA256.txt
           gh release view "$TAG"

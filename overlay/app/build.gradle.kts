@@ -48,8 +48,8 @@ android {
         // 28: гостевые бинарники запускаются из каталога данных приложения (W^X для targetSdk>=29)
         //noinspection ExpiredTargetSdkVersion
         targetSdk = 28
-        versionCode = 5
-        versionName = "0.0.0.5"
+        versionCode = 6
+        versionName = "0.0.0.6"
         ndk { abiFilters += listOf("arm64-v8a") }
     }
 
@@ -72,6 +72,7 @@ android {
 
     signingConfigs {
         if (canSign) create("release") {
+            storeType = signProps.getProperty("storeType") ?: "JKS"
             storeFile = rootProject.file(signProps.getProperty("storeFile"))
             storePassword = signProps.getProperty("storePassword")
             keyAlias = signProps.getProperty("keyAlias")

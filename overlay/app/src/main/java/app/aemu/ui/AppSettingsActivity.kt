@@ -13,6 +13,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -43,6 +45,7 @@ import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeFlexibleTopAppBar
 import androidx.compose.material3.ListItem
@@ -111,13 +114,14 @@ class AppSettingsActivity : ComponentActivity() {
 }
 
 @Composable
-private fun AppSettings(onBack: () -> Unit, onRestyle: () -> Unit) {
+fun AppSettings(onBack: () -> Unit, onRestyle: () -> Unit) {
     val ctx = LocalContext.current
     val scroll = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     var langDialog by remember { mutableStateOf(false) }
     var defaults by remember { mutableStateOf(AppPrefs.defaults(ctx)) }
     var theme by remember { mutableStateOf(AppPrefs.theme(ctx)) }
     var dynamic by remember { mutableStateOf(AppPrefs.dynamicColor(ctx)) }
+    var navStyle by remember { mutableStateOf(AppNavSettings.load(ctx)) }
     val scope = rememberCoroutineScope()
     var autoUpdates by remember { mutableStateOf(AppPrefs.autoCheckUpdates(ctx)) }
     var updateState by remember { mutableStateOf<UpdateState>(UpdateState.Idle) }
@@ -235,6 +239,23 @@ private fun AppSettings(onBack: () -> Unit, onRestyle: () -> Unit) {
                     if (Build.VERSION.SDK_INT >= 31) {
                         Toggle(stringResource(R.string.as_dynamic), stringResource(R.string.as_dynamic_sub), dynamic) {
                             dynamic = it; AppPrefs.setDynamicColor(ctx, it)
+                        }
+                    }
+                }
+            }
+
+            item {
+                Section(stringResource(R.string.as_nav_style), stringResource(R.string.as_nav_style_sub)) {
+                    Row(
+                        Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        AppNavStyle.values().forEach { style ->
+                            FilterChip(
+                                selected = navStyle == style,
+                                onClick = { navStyle = style; AppNavSettings.set(ctx, style) },
+                                label = { Text(navStyleLabel(style)) },
+                            )
                         }
                     }
                 }
