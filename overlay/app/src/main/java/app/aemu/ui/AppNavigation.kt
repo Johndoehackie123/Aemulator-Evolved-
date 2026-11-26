@@ -95,7 +95,7 @@ fun destinationIcon(destination: AppDestination): ImageVector = when (destinatio
 
 @Composable
 fun AppBottomBar(current: AppDestination, onSelect: (AppDestination) -> Unit) {
-    NavigationBar {
+    NavigationBar(modifier = Modifier.glassPanel()) {
         AppDestination.values().forEach { destination ->
             NavigationBarItem(
                 selected = current == destination,
@@ -113,7 +113,7 @@ fun AppSideNav(
     onSelect: (AppDestination) -> Unit,
     compact: Boolean = false,
 ) {
-    NavigationRail(modifier = if (compact) Modifier.width(64.dp) else Modifier) {
+    NavigationRail(modifier = (if (compact) Modifier.width(64.dp) else Modifier).glassPanel()) {
         AppDestination.values().forEach { destination ->
             NavigationRailItem(
                 selected = current == destination,
@@ -127,7 +127,7 @@ fun AppSideNav(
 
 @Composable
 fun AppDrawerContent(current: AppDestination, onSelect: (AppDestination) -> Unit) {
-    ModalDrawerSheet(Modifier.width(300.dp)) {
+    ModalDrawerSheet(Modifier.width(300.dp).glassPanel()) {
         Text(
             stringResource(R.string.app_name),
             style = androidx.compose.material3.MaterialTheme.typography.titleMedium,
@@ -148,7 +148,7 @@ fun AppDrawerContent(current: AppDestination, onSelect: (AppDestination) -> Unit
 @Composable
 fun AppTopTabs(current: AppDestination, onSelect: (AppDestination) -> Unit) {
     val destinations = AppDestination.values()
-    PrimaryScrollableTabRow(selectedTabIndex = destinations.indexOf(current)) {
+    PrimaryScrollableTabRow(selectedTabIndex = destinations.indexOf(current), modifier = Modifier.glassPanel()) {
         destinations.forEach { destination ->
             Tab(
                 selected = current == destination,

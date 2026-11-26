@@ -238,20 +238,20 @@ fun Library(model: LibraryModel) {
             subtitle = { Text(stringResource(R.string.lib_subtitle)) },
             actions = {
                 if (navStyle != AppNavStyle.CLASSIC) {
-                    IconButton(onClick = { pick.launch(arrayOf("*/*")) }) {
+                    IconButton(onClick = { pick.launch(arrayOf("*/*")) }, modifier = Modifier.glassWell()) {
                         Icon(Icons.Rounded.Add, stringResource(R.string.add_import))
                     }
                 }
-                IconButton(onClick = { help = true }) { Icon(Icons.Rounded.Info, stringResource(R.string.help)) }
+                IconButton(onClick = { help = true }, modifier = Modifier.glassWell()) { Icon(Icons.Rounded.Info, stringResource(R.string.help)) }
                 if (navStyle == AppNavStyle.DRAWER) {
-                    IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                    IconButton(onClick = { scope.launch { drawerState.open() } }, modifier = Modifier.glassWell()) {
                         Icon(Icons.Rounded.Menu, stringResource(R.string.as_nav_drawer))
                     }
                 }
                 IconButton(onClick = {
                     if (navStyle == AppNavStyle.CLASSIC) ctx.startActivity(Intent(ctx, AppSettingsActivity::class.java))
                     else selectDestination(AppDestination.SETTINGS)
-                }) { Icon(Icons.Rounded.Settings, stringResource(R.string.settings)) }
+                }, modifier = Modifier.glassWell()) { Icon(Icons.Rounded.Settings, stringResource(R.string.settings)) }
             },
             scrollBehavior = scroll,
         )
@@ -397,7 +397,7 @@ private fun UpdatesScreen(version: String, state: UpdateState, onCheck: () -> Un
                 Spacer(Modifier.height(6.dp))
                 Text(stringResource(R.string.as_updates_sub, version), style = MaterialTheme.typography.bodyMedium)
                 Spacer(Modifier.height(16.dp))
-                Button(onClick = onCheck) { Text(stringResource(R.string.as_updates_check)) }
+                Button(onClick = onCheck, colors = glassButtonColors()) { Text(stringResource(R.string.as_updates_check)) }
                 Spacer(Modifier.height(8.dp))
                 Text(stringResource(R.string.as_updates_hint), style = MaterialTheme.typography.bodySmall)
             }

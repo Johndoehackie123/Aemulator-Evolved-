@@ -27,6 +27,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import app.aemu.R
+import app.aemu.ui.glassPanel
 
 /** Material 3 bottom sheet for the Hub-only preferences, layout choice and field customisation. */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -83,6 +84,7 @@ fun HubSettingsSheet(onDismiss: () -> Unit) {
                     FilterChip(
                         selected = settings.layout == layout,
                         onClick = { HubSettings.setLayout(ctx, layout) },
+                        modifier = Modifier.glassPanel(),
                         label = { Text(layoutLabel(layout)) },
                     )
                 }
@@ -120,6 +122,7 @@ fun HubSettingsSheet(onDismiss: () -> Unit) {
                     FilterChip(
                         selected = settings.storageQuotaGb == gb,
                         onClick = { HubSettings.setStorageQuota(ctx, gb) },
+                        modifier = Modifier.glassPanel(),
                         label = {
                             Text(
                                 when (gb) {
