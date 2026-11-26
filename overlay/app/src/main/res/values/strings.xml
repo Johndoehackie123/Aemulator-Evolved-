@@ -302,4 +302,20 @@
     <string name="as_fork">Fork repository</string>
     <string name="as_upstream">Upstream project</string>
     <string name="update_latest_github">Latest version on GitHub: %1$s</string>
+    <string name="as_nav_style">Navigation style</string>
+    <string name="as_nav_style_sub">Choose how you move around the app. Applies immediately and is saved.</string>
+    <string name="as_nav_classic">Classic</string>
+    <string name="as_nav_bottom">Bottom bar</string>
+    <string name="as_nav_rail">Rail</string>
+    <string name="as_nav_drawer">Drawer</string>
+    <string name="as_nav_tabs">Tabs</string>
+    <string name="as_nav_side">Side strip</string>
+    <string name="as_dest_machines">Machines</string>
+    <string name="as_dest_hub">Firmware Hub</string>
+    <string name="as_dest_settings">Settings</string>
+    <string name="as_dest_updates">Updates</string>
+    <string name="as_updates_title">Updates</string>
+    <string name="as_updates_sub">Installed version: %1$s. Updates are checked from the GitHub releases of this fork.</string>
+    <string name="as_updates_check">Check for updates</string>
+    <string name="as_updates_hint">Use Check for updates to see whether a newer AEmulator Evolved build is available.</string>
 </resources>

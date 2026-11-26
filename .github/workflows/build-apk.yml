@@ -34,6 +34,10 @@ jobs:
       - name: Apply Firmware Hub overlay
         run: |
           cp -a fork/overlay/. upstream/
+          # Stable signing identity: same key/certificate for every published build.
+          mkdir -p upstream/signing
+          cp fork/signing/aemulator-evolved.p12 upstream/signing/
+          cp fork/signing/keystore.properties upstream/keystore.properties
           # Upstream ships a developer-specific Windows JDK path in gradle.properties.
           sed -i '/^org\.gradle\.java\.home=/d' upstream/gradle.properties
           # Give Kotlin enough heap/metaspace; upstream's default 768 MB caused OOM locally.
@@ -99,6 +103,24 @@ jobs:
           unzip -l Aemulator-Evolved-standard-debug.apk > APK-contents.txt
           echo "lib/arm64-v8a present:" && grep -c 'lib/arm64-v8a/' APK-contents.txt
 
+      - name: Verify APK signing certificate
+        run: |
+          set -e
+          BT="$(ls -1 "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
+          export PATH="$ANDROID_HOME/build-tools/$BT:$PATH"
+          expected="$(tr -d '[:space:]' < fork/signing/CERTIFICATE_SHA256.txt | tr 'A-F' 'a-f')"
+          apksigner verify --verbose --print-certs fork/artifacts/Aemulator-Evolved-standard-debug.apk 2>&1 \
+            | tee fork/artifacts/signature.txt
+          actual="$(sed -n 's/.*SHA-256 digest: //p' fork/artifacts/signature.txt | head -1 | tr -d '[:space:]' | tr 'A-F' 'a-f')"
+          echo "Expected signing certificate: $expected"
+          echo "Actual signing certificate:   $actual"
+          if [ -z "$actual" ]; then
+            echo "apksigner reported no SHA-256 signer digest"
+            grep -i -E 'signer|digest|error' fork/artifacts/signature.txt || true
+            exit 1
+          fi
+          test "$actual" = "$expected" || { echo "APK signature does not match the pinned certificate"; exit 1; }
+
       - name: Publish APK into this branch for download
         working-directory: fork
         run: |
@@ -119,5 +141,6 @@ jobs:
             fork/artifacts/Aemulator-Evolved-standard-debug.apk.sha256
             fork/artifacts/APK-contents.txt
             fork/artifacts/unit-test-summary.txt
+            fork/artifacts/signature.txt
           if-no-files-found: error
           retention-days: 90
