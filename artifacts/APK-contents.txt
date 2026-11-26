@@ -3,10 +3,10 @@ Archive:  Aemulator-Evolved-standard-debug.apk
 ---------  ---------- -----   ----
        57  1981-01-01 01:01   META-INF/com/android/build/gradle/app-metadata.properties
  41741456  1981-01-01 01:01   classes.dex
-    65204  1981-01-01 01:01   classes2.dex
-   344184  1981-01-01 01:01   classes3.dex
+    66084  1981-01-01 01:01   classes2.dex
+   418172  1981-01-01 01:01   classes3.dex
    258452  1981-01-01 01:01   classes4.dex
-   790340  1981-01-01 01:01   classes5.dex
+   790344  1981-01-01 01:01   classes5.dex
      4500  1981-01-01 01:01   classes6.dex
    960428  1981-01-01 01:01   classes7.dex
  16071272  1981-01-01 01:01   classes8.dex
@@ -488,7 +488,7 @@ Archive:  Aemulator-Evolved-standard-debug.apk
     17679  1981-01-01 01:01   res/mipmap-xxxhdpi-v4/ic_launcher_fg.png
       700  1981-01-01 01:01   res/xml/file_paths.xml
      1872  1981-01-01 01:01   res/xml/locales_config.xml
-   789064  1981-01-01 01:01   resources.arsc
+   798384  1981-01-01 01:01   resources.arsc
      1733  1981-01-01 01:01   DebugProbesKt.bin
         7  1981-01-01 01:01   META-INF/androidx.activity_activity-compose.version
         7  1981-01-01 01:01   META-INF/androidx.activity_activity-ktx.version
@@ -698,4 +698,4 @@ Archive:  Aemulator-Evolved-standard-debug.apk
      2481  1981-01-01 01:01   org/apache/commons/codec/language/bm/sep_rules_spanish.txt
      3546  1981-01-01 01:01   org/apache/commons/codec/language/dmrules.txt
 ---------                     -------
-199127832                     696 files
+199212024                     696 files

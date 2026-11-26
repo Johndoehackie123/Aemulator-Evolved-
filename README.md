@@ -34,6 +34,16 @@ Settings → Updates → "Check for updates" uses your fork's APK assets.
 - Expressive Material 3 styling: dynamic color (when enabled in AEmulator settings), extra-large
   shapes, animated cards and a stats header. Verified downloads are queued for import
   automatically; unverified files still need your explicit confirmation.
+- **Ten layouts** — Cards (default), Compact, Grid, Mosaic, List, Timeline, Featured, Table,
+  Carousel and Text only. Switch between them in the Hub settings sheet; your choice persists.
+  Every layout uses the same actions and verification rules.
+
+## Customising layouts
+
+Hub settings → **Layout** picks the view. Under **Details in &lt;layout&gt;** you can show or
+hide Status, Size, Checksum, Source, Format and Compatibility, and reorder them with the
+up/down buttons. Those choices are saved **per layout**, so a dense Table can show different
+fields from the Featured banner. **Reset details** restores the canonical order.
 
 The implementation is in `overlay/app/src/main/java/app/aemu/hub/` plus small patched copies
 of `MainActivity.kt`, `Home.kt`, `AppSettingsActivity.kt`, `UpdateDialog.kt`,
