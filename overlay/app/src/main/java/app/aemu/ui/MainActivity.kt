@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.text.format.Formatter
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.compose.BackHandler
 import app.aemu.hub.FirmwareHubScreen
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge

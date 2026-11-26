@@ -1,5 +1,7 @@
 package app.aemu.hub
 
+import android.content.Intent
+import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
@@ -24,8 +26,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.CloudDownload
 import androidx.compose.material.icons.rounded.Delete
-import androidx.compose.material.icons.rounded.Download
 import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.OpenInNew
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Verified
 import androidx.compose.material3.AlertDialog
@@ -57,10 +59,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import app.aemu.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -68,8 +73,10 @@ import kotlinx.coroutines.launch
  * Firmware Hub: a small catalog of firmware known from community reports, one-tap downloads,
  * host-published checksum verification and a sequential import queue.
  *
- * AEmulator does not host firmware. Links go to the manufacturer or a public archive, and
- * entries without a published fingerprint are labelled UNVERIFIED in the UI.
+ * Every visual element is Material 3: Scaffold + LargeFlexibleTopAppBar, FilterChips,
+ * tonal Cards, FilledTonal/Outlined/Text buttons, LinearProgressIndicator and AlertDialog.
+ * All user-facing copy comes from string resources so the rest of AEmulator's locales can
+ * translate it without touching this file.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -92,9 +99,13 @@ fun FirmwareHubScreen(
         modifier = Modifier.nestedScroll(scroll.nestedScrollConnection),
         topBar = {
             LargeFlexibleTopAppBar(
-                title = { Text("Firmware Hub") },
-                subtitle = { Text("Catalog · checksums · import queue", maxLines = 1) },
-                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Rounded.ArrowBack, "Back") } },
+                title = { Text(stringResource(R.string.hub_title)) },
+                subtitle = { Text(stringResource(R.string.hub_subtitle), maxLines = 1) },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.Rounded.ArrowBack, stringResource(R.string.hub_back))
+                    }
+                },
                 scrollBehavior = scroll,
             )
         },
@@ -110,23 +121,36 @@ fun FirmwareHubScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     FirmwareCatalog.brands.forEach { b ->
-                        FilterChip(selected = brand == b, onClick = { brand = b }, label = { Text(b) })
+                        FilterChip(
+                            selected = brand == b,
+                            onClick = { brand = b },
+                            label = { Text(if (b == "All") stringResource(R.string.hub_filter_all) else b) },
+                        )
                     }
                 }
             }
 
             item {
-                Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)) {
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    ),
+                ) {
                     Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Rounded.Info, null, Modifier.size(20.dp))
                         Spacer(Modifier.width(10.dp))
-                        Text(
-                            "Downloads are verified against fingerprints published by the file host. " +
-                                "Files with no published checksum are marked UNVERIFIED and need your confirmation before import.",
-                            style = MaterialTheme.typography.bodySmall,
-                        )
+                        Text(stringResource(R.string.hub_info_card), style = MaterialTheme.typography.bodySmall)
                     }
                 }
+            }
+
+            item {
+                Text(
+                    stringResource(R.string.hub_catalog),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                )
             }
 
             items(FirmwareCatalog.entries.filter { brand == "All" || it.brand == brand }, key = { it.id }) { e ->
@@ -142,8 +166,11 @@ fun FirmwareHubScreen(
                     onCancel = { FirmwareDownloads.cancel(e.id) },
                     onVerify = { scope.launch(Dispatchers.IO) { FirmwareDownloads.verify(ctx, e) } },
                     onQueueImport = { file ->
-                        if (FirmwareDownloads.verdict(ctx, e) == FirmwareDownloads.Verdict.UNVERIFIED) confirmUnverified = e
-                        else FirmwareImportQueue.enqueue(ctx, e, file, onImported)
+                        if (FirmwareDownloads.verdict(ctx, e) == FirmwareDownloads.Verdict.UNVERIFIED) {
+                            confirmUnverified = e
+                        } else {
+                            FirmwareImportQueue.enqueue(ctx, e, file, onImported)
+                        }
                     },
                     onDiscard = { FirmwareDownloads.discard(ctx, e) },
                     onRemoveImport = { FirmwareImportQueue.remove(e.id) },
@@ -151,20 +178,30 @@ fun FirmwareHubScreen(
             }
 
             item {
-                Text("Import queue", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                Text(
+                    stringResource(R.string.hub_import_queue),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                )
             }
             if (importItems.isEmpty()) {
                 item {
-                    Text("Nothing queued. Download a firmware and tap “Queue import”.",
+                    Text(
+                        stringResource(R.string.hub_queue_empty),
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                 }
             } else {
                 items(importItems, key = { it.id + it.status.name }) { item -> ImportQueueCard(item) }
                 item {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        TextButton(onClick = { FirmwareImportQueue.clearFinished() }) { Text("Clear finished") }
-                        TextButton(onClick = { FirmwareImportQueue.cancel() }) { Text("Cancel all") }
+                        TextButton(onClick = { FirmwareImportQueue.clearFinished() }) {
+                            Text(stringResource(R.string.hub_clear_finished))
+                        }
+                        TextButton(onClick = { FirmwareImportQueue.cancel() }) {
+                            Text(stringResource(R.string.hub_cancel_all))
+                        }
                     }
                 }
             }
@@ -172,9 +209,7 @@ fun FirmwareHubScreen(
             item {
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    "AEmulator is GPL-3.0 and based on uxazu/AEmulator, which is based on the original " +
-                        "SENSES emulator by Istratii-tech. Firmware belongs to its respective owners; " +
-                        "this app ships no firmware. Compatibility notes are community reports, not guarantees.",
+                    stringResource(R.string.hub_footer),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -186,19 +221,24 @@ fun FirmwareHubScreen(
         AlertDialog(
             onDismissRequest = { confirmUnverified = null },
             icon = { Icon(Icons.Rounded.Info, null) },
-            title = { Text("Import without a checksum?") },
+            title = { Text(stringResource(R.string.hub_dialog_title)) },
             text = {
-                Text("${e.verificationNote ?: "No published checksum."}\n\n" +
-                    "The file's size was checked, but its content could not be authenticated. " +
-                    "Import it only if you obtained it from a source you trust.")
+                Text(
+                    stringResource(
+                        R.string.hub_dialog_text,
+                        e.verificationNote ?: stringResource(R.string.hub_unverified_badge),
+                    )
+                )
             },
             confirmButton = {
                 TextButton(onClick = {
                     confirmUnverified = null
                     FirmwareDownloads.finishedFile(ctx, e)?.let { FirmwareImportQueue.enqueue(ctx, e, it, onImported) }
-                }) { Text("Import anyway") }
+                }) { Text(stringResource(R.string.hub_import_anyway)) }
             },
-            dismissButton = { TextButton(onClick = { confirmUnverified = null }) { Text("Cancel") } },
+            dismissButton = {
+                TextButton(onClick = { confirmUnverified = null }) { Text(stringResource(R.string.hub_cancel)) }
+            },
         )
     }
 }
@@ -219,6 +259,7 @@ private fun FirmwareCard(
     onDiscard: () -> Unit,
     onRemoveImport: () -> Unit,
 ) {
+    val ctx = LocalContext.current
     Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)) {
         Column(Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -236,14 +277,20 @@ private fun FirmwareCard(
                 }
                 Column(horizontalAlignment = Alignment.End) {
                     Text(FirmwareDownloads.fmtBytes(entry.sizeBytes), style = MaterialTheme.typography.labelLarge)
-                    Text(entry.format, style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(
+                        entry.format,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                 }
             }
 
             Spacer(Modifier.height(10.dp))
-            Text("Reported: ${entry.compatReport}", style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(
+                stringResource(R.string.hub_reported, entry.compatReport),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
             Spacer(Modifier.height(4.dp))
             ChecksumBadge(entry, verdict)
 
@@ -252,27 +299,34 @@ private fun FirmwareCard(
             AnimatedVisibility(visible = active) {
                 Column(Modifier.padding(top = 12.dp)) {
                     if (inQueue && state.status == FirmwareDownloads.Status.QUEUED) {
-                        Text("Queued for download", style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    } else {
-                        if (state.progress >= 0f)
-                            LinearProgressIndicator(progress = { state.progress }, modifier = Modifier.fillMaxWidth())
-                        else LinearProgressIndicator(Modifier.fillMaxWidth())
-                        Spacer(Modifier.height(6.dp))
-                        val remaining = (state.total - state.received).coerceAtLeast(0)
-                        val eta = FirmwareDownloads.fmtEta(remaining, state.bytesPerSec)
                         Text(
-                            buildString {
-                                append(FirmwareDownloads.fmtBytes(state.received))
-                                if (state.total > 0) append(" / ").append(FirmwareDownloads.fmtBytes(state.total))
-                                val sp = FirmwareDownloads.fmtSpeed(state.bytesPerSec)
-                                if (sp.isNotEmpty()) append(" · ").append(sp)
-                                if (eta.isNotEmpty()) append(" · ").append(eta)
-                            },
+                            stringResource(R.string.hub_queued_download),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
-                        TextButton(onClick = onCancel) { Text("Cancel download") }
+                    } else {
+                        val progressText = buildString {
+                            append(FirmwareDownloads.fmtBytes(state.received))
+                            if (state.total > 0) append(" / ").append(FirmwareDownloads.fmtBytes(state.total))
+                            val sp = FirmwareDownloads.fmtSpeed(state.bytesPerSec)
+                            if (sp.isNotEmpty()) append(" · ").append(sp)
+                            val eta = FirmwareDownloads.fmtEta((state.total - state.received).coerceAtLeast(0), state.bytesPerSec)
+                            if (eta.isNotEmpty()) append(" · ").append(eta)
+                        }
+                        val progressLabel = stringResource(R.string.hub_progress_label) + " " + progressText
+                        val indicator = Modifier
+                            .fillMaxWidth()
+                            .semantics { contentDescription = progressLabel }
+                        if (state.progress >= 0f)
+                            LinearProgressIndicator(progress = { state.progress }, modifier = indicator)
+                        else LinearProgressIndicator(indicator)
+                        Spacer(Modifier.height(6.dp))
+                        Text(
+                            progressText,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        TextButton(onClick = onCancel) { Text(stringResource(R.string.hub_cancel_download)) }
                     }
                 }
             }
@@ -294,28 +348,49 @@ private fun FirmwareCard(
                         ) {
                             Icon(Icons.Rounded.PlayArrow, null, Modifier.size(18.dp))
                             Spacer(Modifier.width(6.dp))
-                            Text(if (verdict == FirmwareDownloads.Verdict.UNVERIFIED) "Queue (unverified)" else "Queue import")
+                            Text(
+                                if (verdict == FirmwareDownloads.Verdict.UNVERIFIED)
+                                    stringResource(R.string.hub_queue_unverified)
+                                else stringResource(R.string.hub_queue_import),
+                            )
                         }
-                        OutlinedButton(onClick = onVerify) { Text("Verify") }
-                        IconButton(onClick = onDiscard) { Icon(Icons.Rounded.Delete, "Delete file") }
+                        OutlinedButton(onClick = onVerify) { Text(stringResource(R.string.hub_verify)) }
+                        IconButton(onClick = onDiscard) {
+                            Icon(Icons.Rounded.Delete, stringResource(R.string.hub_delete_file))
+                        }
                     }
                     active -> Unit
                     else -> {
                         FilledTonalButton(onClick = onDownload) {
                             Icon(Icons.Rounded.CloudDownload, null, Modifier.size(18.dp))
                             Spacer(Modifier.width(6.dp))
-                            Text(if (partial > 0) "Resume (${FirmwareDownloads.fmtBytes(partial)})" else "Download")
+                            Text(
+                                if (partial > 0) stringResource(R.string.hub_resume, FirmwareDownloads.fmtBytes(partial))
+                                else stringResource(R.string.hub_download),
+                            )
                         }
                     }
                 }
             }
+
+            Spacer(Modifier.height(4.dp))
+            TextButton(onClick = {
+                runCatching { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(entry.sourcePage))) }
+            }) {
+                Icon(Icons.Rounded.OpenInNew, null, Modifier.size(16.dp))
+                Spacer(Modifier.width(4.dp))
+                Text(stringResource(R.string.hub_open_source))
+            }
+
             importItem?.let {
                 Text(
-                    "Import queue: ${it.status.name.lowercase()} — ${it.step}",
+                    stringResource(R.string.hub_import_queue_label, importStatusLabel(it.status), it.step),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                if (it.status == FirmwareImportQueue.Status.QUEUED) TextButton(onClick = onRemoveImport) { Text("Remove from queue") }
+                if (it.status == FirmwareImportQueue.Status.QUEUED) {
+                    TextButton(onClick = onRemoveImport) { Text(stringResource(R.string.hub_remove_queue)) }
+                }
             }
         }
     }
@@ -325,15 +400,23 @@ private fun FirmwareCard(
 private fun ChecksumBadge(entry: FirmwareCatalog.Entry, verdict: FirmwareDownloads.Verdict) {
     val spec = entry.checksum
     val (text, color) = when {
-        spec == null -> "UNVERIFIED · no published checksum" to MaterialTheme.colorScheme.error
-        verdict == FirmwareDownloads.Verdict.MISMATCH -> "CHECKSUM MISMATCH · file discarded" to MaterialTheme.colorScheme.error
-        verdict == FirmwareDownloads.Verdict.VERIFIED -> "${spec.algorithm} verified: ${spec.hex.take(12)}…" to Color(0xFF2E9E6B)
-        else -> "${spec.algorithm} expected: ${spec.hex.take(12)}…" to MaterialTheme.colorScheme.primary
+        spec == null -> stringResource(R.string.hub_unverified_badge) to MaterialTheme.colorScheme.error
+        verdict == FirmwareDownloads.Verdict.MISMATCH ->
+            stringResource(R.string.hub_mismatch_badge) to MaterialTheme.colorScheme.error
+        verdict == FirmwareDownloads.Verdict.VERIFIED ->
+            stringResource(R.string.hub_verified_short, spec.algorithm, spec.hex.take(12)) to
+                MaterialTheme.colorScheme.tertiary
+        else ->
+            stringResource(R.string.hub_expected_short, spec.algorithm, spec.hex.take(12)) to
+                MaterialTheme.colorScheme.primary
     }
     Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(
-            if (spec != null && verdict == FirmwareDownloads.Verdict.VERIFIED) Icons.Rounded.Verified else Icons.Rounded.Info,
-            null, Modifier.size(14.dp), tint = color,
+            if (spec != null && verdict == FirmwareDownloads.Verdict.VERIFIED) Icons.Rounded.Verified
+            else Icons.Rounded.Info,
+            null,
+            Modifier.size(14.dp),
+            tint = color,
         )
         Spacer(Modifier.width(6.dp))
         Text(text, style = MaterialTheme.typography.labelSmall, color = color)
@@ -345,10 +428,17 @@ private fun ImportQueueCard(item: FirmwareImportQueue.Item) {
     Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)) {
         Column(Modifier.padding(14.dp)) {
             Text(item.file, style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            if (item.progress in 0f..1f && item.status == FirmwareImportQueue.Status.RUNNING)
-                LinearProgressIndicator(progress = { item.progress }, modifier = Modifier.fillMaxWidth())
+            if (item.progress in 0f..1f && item.status == FirmwareImportQueue.Status.RUNNING) {
+                val queueProgressLabel = stringResource(R.string.hub_progress_label) + " " + item.step
+                LinearProgressIndicator(
+                    progress = { item.progress },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .semantics { contentDescription = queueProgressLabel },
+                )
+            }
             Text(
-                "${item.status.name.lowercase()}${if (item.step.isNotBlank()) " · ${item.step}" else ""}" +
+                "${importStatusLabel(item.status)}${if (item.step.isNotBlank()) " · ${item.step}" else ""}" +
                     (item.message?.let { " · $it" } ?: ""),
                 style = MaterialTheme.typography.bodySmall,
                 color = if (item.status == FirmwareImportQueue.Status.FAILED) MaterialTheme.colorScheme.error
@@ -359,6 +449,15 @@ private fun ImportQueueCard(item: FirmwareImportQueue.Item) {
 }
 
 @Composable
+private fun importStatusLabel(status: FirmwareImportQueue.Status): String = when (status) {
+    FirmwareImportQueue.Status.QUEUED -> stringResource(R.string.hub_status_queued)
+    FirmwareImportQueue.Status.RUNNING -> stringResource(R.string.hub_status_running)
+    FirmwareImportQueue.Status.DONE -> stringResource(R.string.hub_status_done)
+    FirmwareImportQueue.Status.FAILED -> stringResource(R.string.hub_status_failed)
+    FirmwareImportQueue.Status.CANCELLED -> stringResource(R.string.hub_status_cancelled)
+}
+
+@Composable
 private fun BrandBadge(brand: String) {
     val label = when (brand) {
         "Samsung" -> "S"
@@ -366,6 +465,7 @@ private fun BrandBadge(brand: String) {
         "Xiaomi" -> "MI"
         else -> brand.take(1)
     }
+    // Brand identity colours are intentionally kept; all app chrome uses theme tokens.
     val tint = when (brand) {
         "Samsung" -> Color(0xFF1428A0)
         "Google" -> Color(0xFF0B8043)
