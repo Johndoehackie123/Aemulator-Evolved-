@@ -8,20 +8,17 @@ jobs:
     steps:
       - name: Fetch page HTML and script list
         run: |
-          set -x
           curl -sSL -D headers.txt -o page.html "https://file.kiwi/717a5d20" || true
-          wc -c page.html headers.txt
-          head -c 800 page.html
-          echo "=== SCRIPTS ==="
-          grep -oE '<script[^>]+src="[^"]+"' page.html | sed 's/.*src="//' | sort -u | tee scripts.txt
+          echo "=== PAGE SIZE ==="; wc -c page.html headers.txt
+          echo "=== HTTP HEADERS ==="; cat headers.txt
+          echo "=== SCRIPTS ==="; grep -oE '<script[^>]+src="[^"]+"' page.html | sed 's/.*src="//' | sort -u | tee scripts.txt
+          echo "=== LINKS WITH /717a5d20 ==="; grep -oE 'href="[^"]*717a5d20[^"]*"' page.html | sort -u | head -20 || true
           echo "=== API CURLS ==="
           for u in \
             "https://api.file.kiwi/v1/delivery-webfolder/717a5d20" \
             "https://api.file.kiwi/v2/folders/717a5d20" \
             "https://file.kiwi/api/webfolder/717a5d20"; do
-            echo "--- $u"
-            curl -sS -i --max-time 20 "$u" | head -c 1200 || true
-            echo
+            echo "--- $u"; curl -sS -i --max-time 20 "$u" | head -c 1200 || true; echo
           done
       - name: Fetch JS bundles and grep endpoints
         run: |
@@ -32,16 +29,7 @@ jobs:
             echo "=== JS $i $url ==="
             curl -sSL --max-time 30 "$url" -o "js$i.js" || true
             wc -c "js$i.js" || true
-            grep -oE 'https://api\.file\.kiwi[^"'"'"' )]*' "js$i.js" | sort -u | head -40 || true
-            grep -oE '"/v[12]/[A-Za-z0-9_/${}?.=&-]+"' "js$i.js" | sort -u | head -80 || true
+            echo "--- api urls:"; grep -oE 'https://api\.file\.kiwi[^"'"'"' )`]*' "js$i.js" | sort -u | head -40 || true
+            echo "--- v1/v2 paths:"; grep -oE '[/]v[12]/[A-Za-z0-9_/${}?.=&-]+' "js$i.js" | sort -u | head -100 || true
+            echo "--- download contexts:"; grep -oE '.{120}download[A-Za-z0-9_/?=&{}$-]{0,80}.{120}' "js$i.js" | head -30 || true
           done < scripts.txt
-      - name: Upload probe output
-        uses: actions/upload-artifact@v4
-        with:
-          name: kiwi-probe
-          path: |
-            page.html
-            headers.txt
-            scripts.txt
-            js*.js
-          if-no-files-found: ignore
