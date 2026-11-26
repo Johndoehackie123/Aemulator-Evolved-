@@ -17,7 +17,7 @@ jobs:
       - name: Install Playwright
         run: |
           set +e
-          { npm init -y; npm i playwright@1.58.2; npx playwright install --with-deps chromium; } > install-log.txt 2>&1
+          { npm init -y; npm i playwright@1.65.1; npx playwright install chromium; } > install-log.txt 2>&1
           git config user.name "fetch-bot"; git config user.email "fetch@example.com"
           git add install-log.txt || true
           git commit -m "playwright install log" || true
