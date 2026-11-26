@@ -1,6 +1,8 @@
 package app.aemu.hub
 
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -179,6 +181,7 @@ object FirmwareDownloads {
             var digest: Checksums.Digest? = if (spec != null && algorithm != null) Checksums.Digest(algorithm) else null
             var keepPartial = false
             try {
+                requireAllowedNetwork(ctx)
                 var have = part.takeIf { it.isFile }?.length() ?: 0L
                 val conn = (URL(entry.url).openConnection() as HttpURLConnection).apply {
                     connectTimeout = 30_000
@@ -266,7 +269,8 @@ object FirmwareDownloads {
                 }
                 // User chose auto-import for verified files. Unverified files never auto-import:
                 // the Hub still shows an explicit confirmation dialog for those.
-                if (spec != null && algorithm != null) FirmwareImportQueue.enqueue(ctx, entry, out)
+                if (spec != null && algorithm != null && HubSettings.state.value.autoImport)
+                    FirmwareImportQueue.enqueue(ctx, entry, out)
                 return
             } catch (e: CancellationException) {
                 throw e
@@ -281,6 +285,15 @@ object FirmwareDownloads {
                 delay(1500L * attempt)
             }
         }
+    }
+
+    private fun requireAllowedNetwork(ctx: Context) {
+        if (!HubSettings.state.value.wifiOnly) return
+        val cm = ctx.getSystemService(ConnectivityManager::class.java)
+        val network = cm?.activeNetwork
+        val caps = network?.let { cm.getNetworkCapabilities(it) }
+        if (caps == null || !caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI))
+            throw IOException("Wi-Fi only is enabled; connect to Wi-Fi to download firmware")
     }
 
     private fun set(id: String, f: EntryState.() -> EntryState) {

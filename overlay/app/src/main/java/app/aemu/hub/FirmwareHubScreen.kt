@@ -19,8 +19,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -30,6 +31,7 @@ import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.OpenInNew
 import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.Verified
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
@@ -50,6 +52,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -91,7 +94,10 @@ fun FirmwareHubScreen(
     val scope = rememberCoroutineScope()
     var brand by remember { mutableStateOf("All") }
     var confirmUnverified by remember { mutableStateOf<FirmwareCatalog.Entry?>(null) }
+    var showSettings by remember { mutableStateOf(false) }
 
+    LaunchedEffect(Unit) { HubSettings.load(ctx) }
+    val settings by HubSettings.state.collectAsState()
     val downloads by FirmwareDownloads.entries.collectAsState()
     val downloadQueue by FirmwareDownloads.queue.collectAsState()
     val importItems by FirmwareImportQueue.items.collectAsState()
@@ -109,6 +115,12 @@ fun FirmwareHubScreen(
     val queuedCount = downloadQueue.size + importItems.count {
         it.status == FirmwareImportQueue.Status.QUEUED || it.status == FirmwareImportQueue.Status.RUNNING
     }
+    val visibleEntries = FirmwareCatalog.entries.filter {
+        (settings.showUnverified || it.verified) && (brand == "All" || it.brand == brand)
+    }
+    val fullSpan: androidx.compose.foundation.lazy.grid.LazyGridItemSpanScope.() ->
+        androidx.compose.foundation.lazy.grid.GridItemSpan =
+        { androidx.compose.foundation.lazy.grid.GridItemSpan(maxLineSpan) }
 
     Scaffold(
         modifier = Modifier.nestedScroll(scroll.nestedScrollConnection),
@@ -121,16 +133,23 @@ fun FirmwareHubScreen(
                         Icon(Icons.Rounded.ArrowBack, stringResource(R.string.hub_back))
                     }
                 },
+                actions = {
+                    IconButton(onClick = { showSettings = true }) {
+                        Icon(Icons.Rounded.Settings, stringResource(R.string.hub_settings))
+                    }
+                },
                 scrollBehavior = scroll,
             )
         },
     ) { pad ->
-        LazyColumn(
+        LazyVerticalGrid(
+            columns = if (settings.layout == HubSettings.Layout.GRID) GridCells.Adaptive(260.dp) else GridCells.Fixed(1),
             modifier = Modifier.fillMaxSize().padding(pad),
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 40.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            item {
+            item(span = fullSpan) {
                 Row(
                     Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -145,7 +164,7 @@ fun FirmwareHubScreen(
                 }
             }
 
-            item {
+            item(span = fullSpan) {
                 Card(
                     shape = MaterialTheme.shapes.extraLarge,
                     colors = CardDefaults.cardColors(
@@ -164,7 +183,7 @@ fun FirmwareHubScreen(
                 }
             }
 
-            item {
+            item(span = fullSpan) {
                 Card(
                     shape = MaterialTheme.shapes.extraLarge,
                     colors = CardDefaults.cardColors(
@@ -184,7 +203,7 @@ fun FirmwareHubScreen(
                 }
             }
 
-            item {
+            item(span = fullSpan) {
                 Text(
                     stringResource(R.string.hub_catalog),
                     style = MaterialTheme.typography.titleMedium,
@@ -192,8 +211,26 @@ fun FirmwareHubScreen(
                 )
             }
 
-            items(FirmwareCatalog.entries.filter { brand == "All" || it.brand == brand }, key = { it.id }) { e ->
-                FirmwareCard(
+            items(visibleEntries, key = { it.id }) { e ->
+                if (settings.layout == HubSettings.Layout.COMPACT) CompactFirmwareRow(
+                    entry = e,
+                    state = downloads[e.id] ?: FirmwareDownloads.EntryState(e.id),
+                    inQueue = e.id in downloadQueue,
+                    finished = FirmwareDownloads.finishedFile(ctx, e),
+                    verdict = FirmwareDownloads.verdict(ctx, e),
+                    partial = FirmwareDownloads.partialBytes(ctx, e),
+                    onDownload = { FirmwareDownloads.enqueue(ctx, e) },
+                    onCancel = { FirmwareDownloads.cancel(e.id) },
+                    onVerify = { scope.launch(Dispatchers.IO) { FirmwareDownloads.verify(ctx, e) } },
+                    onQueueImport = { file ->
+                        if (FirmwareDownloads.verdict(ctx, e) == FirmwareDownloads.Verdict.UNVERIFIED) {
+                            confirmUnverified = e
+                        } else {
+                            FirmwareImportQueue.enqueue(ctx, e, file, onImported)
+                        }
+                    },
+                    onDiscard = { FirmwareDownloads.discard(ctx, e) },
+                ) else FirmwareCard(
                     entry = e,
                     state = downloads[e.id] ?: FirmwareDownloads.EntryState(e.id),
                     inQueue = e.id in downloadQueue,
@@ -216,7 +253,7 @@ fun FirmwareHubScreen(
                 )
             }
 
-            item {
+            item(span = fullSpan) {
                 Text(
                     stringResource(R.string.hub_import_queue),
                     style = MaterialTheme.typography.titleMedium,
@@ -224,7 +261,7 @@ fun FirmwareHubScreen(
                 )
             }
             if (importItems.isEmpty()) {
-                item {
+                item(span = fullSpan) {
                     Text(
                         stringResource(R.string.hub_queue_empty),
                         style = MaterialTheme.typography.bodySmall,
@@ -233,7 +270,7 @@ fun FirmwareHubScreen(
                 }
             } else {
                 items(importItems, key = { it.id + it.status.name }) { item -> ImportQueueCard(item) }
-                item {
+                item(span = fullSpan) {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         TextButton(onClick = { FirmwareImportQueue.clearFinished() }) {
                             Text(stringResource(R.string.hub_clear_finished))
@@ -245,7 +282,7 @@ fun FirmwareHubScreen(
                 }
             }
 
-            item {
+            item(span = fullSpan) {
                 Spacer(Modifier.height(8.dp))
                 Text(
                     stringResource(R.string.hub_footer),
@@ -280,6 +317,7 @@ fun FirmwareHubScreen(
             },
         )
     }
+    if (showSettings) HubSettingsSheet(onDismiss = { showSettings = false })
 }
 
 @Composable
@@ -508,6 +546,73 @@ private fun importStatusLabel(status: FirmwareImportQueue.Status): String = when
     FirmwareImportQueue.Status.DONE -> stringResource(R.string.hub_status_done)
     FirmwareImportQueue.Status.FAILED -> stringResource(R.string.hub_status_failed)
     FirmwareImportQueue.Status.CANCELLED -> stringResource(R.string.hub_status_cancelled)
+}
+
+@Composable
+private fun CompactFirmwareRow(
+    entry: FirmwareCatalog.Entry,
+    state: FirmwareDownloads.EntryState,
+    inQueue: Boolean,
+    finished: java.io.File?,
+    verdict: FirmwareDownloads.Verdict,
+    partial: Long,
+    onDownload: () -> Unit,
+    onCancel: () -> Unit,
+    onVerify: () -> Unit,
+    onQueueImport: (java.io.File) -> Unit,
+    onDiscard: () -> Unit,
+) {
+    Card(
+        shape = MaterialTheme.shapes.large,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+    ) {
+        Column(Modifier.padding(12.dp).animateContentSize()) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                BrandBadge(entry.brand)
+                Spacer(Modifier.width(10.dp))
+                Column(Modifier.weight(1f)) {
+                    Text(entry.device, style = MaterialTheme.typography.titleSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(
+                        "Android ${entry.android} · ${FirmwareDownloads.fmtBytes(entry.sizeBytes)}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    ChecksumBadge(entry, verdict)
+                }
+                if (finished != null) {
+                    IconButton(onClick = { onQueueImport(finished) }) {
+                        Icon(Icons.Rounded.PlayArrow, stringResource(R.string.hub_queue_import))
+                    }
+                    IconButton(onClick = onDiscard) { Icon(Icons.Rounded.Delete, stringResource(R.string.hub_delete_file)) }
+                } else if (!inQueue) {
+                    IconButton(onClick = onDownload) { Icon(Icons.Rounded.CloudDownload, stringResource(R.string.hub_download)) }
+                }
+            }
+            val active = state.status == FirmwareDownloads.Status.DOWNLOADING ||
+                state.status == FirmwareDownloads.Status.VERIFYING || inQueue
+            if (active) {
+                Spacer(Modifier.height(8.dp))
+                if (inQueue && state.status == FirmwareDownloads.Status.QUEUED) {
+                    Text(stringResource(R.string.hub_queued_download), style = MaterialTheme.typography.labelSmall)
+                } else {
+                    LinearProgressIndicator(
+                        progress = { if (state.progress >= 0f) state.progress else 0f },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    TextButton(onClick = onCancel) { Text(stringResource(R.string.hub_cancel_download)) }
+                }
+            } else if (partial > 0) {
+                Text(
+                    stringResource(R.string.hub_resume, FirmwareDownloads.fmtBytes(partial)),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            if (finished != null) TextButton(onClick = onVerify) { Text(stringResource(R.string.hub_verify)) }
+        }
+    }
 }
 
 @Composable

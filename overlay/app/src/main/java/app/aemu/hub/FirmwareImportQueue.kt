@@ -93,6 +93,13 @@ object FirmwareImportQueue {
                 update(next.id) { copy(status = Status.FAILED, message = "File missing or not checksum-verified") }
                 continue
             }
+            if (HubSettings.state.value.reverifyBeforeImport) {
+                FirmwareDownloads.verify(ctx, entry)
+                if (FirmwareDownloads.verdict(ctx, entry) != FirmwareDownloads.Verdict.VERIFIED) {
+                    update(next.id) { copy(status = Status.FAILED, message = "Re-verification failed; import skipped") }
+                    continue
+                }
+            }
             try {
                 update(next.id) { copy(status = Status.RUNNING, step = "Starting import") }
                 val importer = Importer(ctx,
@@ -101,6 +108,7 @@ object FirmwareImportQueue {
                 active = importer
                 val img = importer.import(Uri.fromFile(file), entry.fileName)
                 update(next.id) { copy(status = Status.DONE, step = "Imported", progress = 1f, imageId = img.id, message = null) }
+                if (HubSettings.state.value.deleteAfterImport) FirmwareDownloads.discard(ctx, entry)
                 onImported?.invoke()
             } catch (e: CancellationException) {
                 update(next.id) { copy(status = Status.CANCELLED, step = "Cancelled") }
