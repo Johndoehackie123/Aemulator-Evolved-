@@ -38,7 +38,7 @@ jobs:
             echo "Grid, Mosaic, List, Timeline, Featured, Table, Carousel and Text only). Hub settings"
             echo "let you choose and reorder the details shown in each layout. The updater checks this repo."
             echo ""
-            echo "8/8 unit tests passed. Not tested on a physical device."
+            echo "13/13 unit tests passed. Not tested on a physical device."
           } > /tmp/release-notes.md
           gh release create "$TAG" --target main \
             --title "AEmulator Evolved v0.0.0.5" \
