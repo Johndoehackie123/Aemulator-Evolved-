@@ -42,10 +42,6 @@ object GlassSettings {
 val LocalGlassTheme = androidx.compose.runtime.compositionLocalOf { false }
 
 @Composable
-fun glassSurfaceColor(color: Color): Color =
-    if (LocalGlassTheme.current) color.copy(alpha = 0.46f) else color
-
-@Composable
 fun glassCardColors(
     containerColor: Color = MaterialTheme.colorScheme.surfaceContainer,
     contentColor: Color? = null,
@@ -63,7 +59,7 @@ fun glassElevatedCardColors(containerColor: Color = MaterialTheme.colorScheme.su
 @Composable
 fun Modifier.glassBorder(shape: Shape): Modifier =
     if (LocalGlassTheme.current) {
-        this.border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.45f), shape)
+        this.border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.34f), shape)
     } else this
 
 @Composable

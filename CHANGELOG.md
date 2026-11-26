@@ -4,6 +4,12 @@ Release notes are generated from the latest section of this file by
 `.github/workflows/release.yml`. Add a `## vX.Y.Z` heading above with bullet points before
 dispatching a release.
 
+## v0.0.0.10
+
+- Fixed Glass applying transparency twice, which made cards and controls look washed out.
+- Backdrop is now theme-aware (dark violet/teal in dark mode, icy violet/cyan in light mode).
+- Increased glass surface opacity to a balanced frost and used brand-blue luminous edges.
+
 ## v0.0.0.9
 
 - Enhanced Glass: real blurred backdrop layers on Android 12+, icy violet/cyan glow, and glass

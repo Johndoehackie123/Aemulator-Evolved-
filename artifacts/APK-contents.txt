@@ -8,7 +8,7 @@ Archive:  Aemulator-Evolved-standard-debug.apk
    258452  1981-01-01 01:01   classes4.dex
    790344  1981-01-01 01:01   classes5.dex
      4500  1981-01-01 01:01   classes6.dex
-  1064292  1981-01-01 01:01   classes7.dex
+  1065068  1981-01-01 01:01   classes7.dex
  16071272  1981-01-01 01:01   classes8.dex
   7088868  1981-01-01 01:01   classes9.dex
     57776  1981-01-01 01:01   lib/arm64-v8a/libaemu64_21.so
@@ -698,4 +698,4 @@ Archive:  Aemulator-Evolved-standard-debug.apk
      2481  1981-01-01 01:01   org/apache/commons/codec/language/bm/sep_rules_spanish.txt
      3546  1981-01-01 01:01   org/apache/commons/codec/language/dmrules.txt
 ---------                     -------
-199323136                     696 files
+199323912                     696 files

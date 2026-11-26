@@ -50,23 +50,23 @@ private val Dark = darkColorScheme(
 /** Glass palette: translucent surfaces over a tinted background. All other tokens stay brand-true. */
 private val GlassLight = Light.copy(
     background = Color(0xFFEDEAF8),
-    surface = Color(0x66FFFFFF),
-    surfaceContainerLowest = Color(0x99FFFFFF),
-    surfaceContainerLow = Color(0x8AFFFFFF),
-    surfaceContainer = Color(0x75FFFFFF),
-    surfaceContainerHigh = Color(0x66FFFFFF),
-    surfaceContainerHighest = Color(0x59FFFFFF),
+    surface = Color(0x8CFFFFFF),
+    surfaceContainerLowest = Color(0xB8FFFFFF),
+    surfaceContainerLow = Color(0xABFFFFFF),
+    surfaceContainer = Color(0x9EFFFFFF),
+    surfaceContainerHigh = Color(0x91FFFFFF),
+    surfaceContainerHighest = Color(0x85FFFFFF),
     outline = Color(0xFF7A7690),
 )
 
 private val GlassDark = Dark.copy(
     background = Color(0xFF0D1018),
-    surface = Color(0x14FFFFFF),
-    surfaceContainerLowest = Color(0x14FFFFFF),
-    surfaceContainerLow = Color(0x17FFFFFF),
-    surfaceContainer = Color(0x1AFFFFFF),
-    surfaceContainerHigh = Color(0x21FFFFFF),
-    surfaceContainerHighest = Color(0x29FFFFFF),
+    surface = Color(0x2EFFFFFF),
+    surfaceContainerLowest = Color(0x30FFFFFF),
+    surfaceContainerLow = Color(0x2DFFFFFF),
+    surfaceContainer = Color(0x29FFFFFF),
+    surfaceContainerHigh = Color(0x26FFFFFF),
+    surfaceContainerHighest = Color(0x23FFFFFF),
     outline = Color(0xFFB6B9CC),
 )
 
@@ -110,10 +110,10 @@ fun AemuTheme(forceDark: Boolean? = null, content: @Composable () -> Unit) {
         dynamicActive -> {
             val dynamic = if (dark) dynamicDarkColorScheme(ctx) else dynamicLightColorScheme(ctx)
             if (glass) dynamic.copy(
-                surface = if (dark) Color(0x14FFFFFF) else Color(0x75FFFFFF),
-                surfaceContainer = if (dark) Color(0x1AFFFFFF) else Color(0x75FFFFFF),
-                surfaceContainerLow = if (dark) Color(0x17FFFFFF) else Color(0x8AFFFFFF),
-                surfaceContainerHigh = if (dark) Color(0x21FFFFFF) else Color(0x66FFFFFF),
+                surface = if (dark) Color(0x2EFFFFFF) else Color(0x8CFFFFFF),
+                surfaceContainer = if (dark) Color(0x29FFFFFF) else Color(0x9EFFFFFF),
+                surfaceContainerLow = if (dark) Color(0x2DFFFFFF) else Color(0xABFFFFFF),
+                surfaceContainerHigh = if (dark) Color(0x26FFFFFF) else Color(0x91FFFFFF),
             ) else dynamic
         }
         glass && dark -> GlassDark
