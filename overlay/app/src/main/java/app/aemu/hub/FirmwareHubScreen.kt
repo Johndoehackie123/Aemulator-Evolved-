@@ -150,7 +150,7 @@ fun FirmwareHubScreen(
             },
             modifier = Modifier.fillMaxSize().padding(pad),
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 40.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            verticalItemSpacing = 12.dp,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             item(span = fullSpan) {
