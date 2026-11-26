@@ -235,9 +235,9 @@ object FirmwareDownloads {
                             }
                             if (now - lastReport >= 250) {
                                 lastReport = now
-                                set(entry.id) { s ->
-                                    if (s.id == entry.id) s.copy(received = received, total = total, bytesPerSec = speed,
-                                        status = Status.DOWNLOADING) else s
+                                set(entry.id) {
+                                    copy(received = received, total = total, bytesPerSec = speed,
+                                        status = Status.DOWNLOADING)
                                 }
                             }
                         }
