@@ -315,7 +315,7 @@
     <string name="as_dest_settings">Settings</string>
     <string name="as_dest_updates">Updates</string>
     <string name="as_updates_title">Updates</string>
-    <string name="as_updates_sub">Installed version: %1$s. Updates are checked from this fork's GitHub releases.</string>
+    <string name="as_updates_sub">Installed version: %1$s. Updates are checked from the GitHub releases of this fork.</string>
     <string name="as_updates_check">Check for updates</string>
     <string name="as_updates_hint">Use Check for updates to see whether a newer AEmulator Evolved build is available.</string>
 </resources>
