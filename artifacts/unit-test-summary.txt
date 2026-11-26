@@ -1,4 +1,4 @@
 Gradle build: 46 actionable tasks: 46 executed
 Unit test suites (app/src/test):
-<testsuite name="app.aemu.RomMatrixTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-11-26T01:04:14.316Z" hostname="runnervm0hi8g" time="0.045">
-<testsuite name="app.aemu.hub.ChecksumsTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-11-26T01:04:14.366Z" hostname="runnervm0hi8g" time="0.02">
+<testsuite name="app.aemu.RomMatrixTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-11-26T01:16:06.682Z" hostname="runnervm0hi8g" time="0.043">
+<testsuite name="app.aemu.hub.ChecksumsTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-11-26T01:16:06.729Z" hostname="runnervm0hi8g" time="0.028">
