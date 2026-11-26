@@ -40,12 +40,15 @@ Daemon will be stopped at the end of the build
 > Task :app:writeStandardDebugAppMetadata UP-TO-DATE
 > Task :app:writeStandardDebugSigningConfigVersions UP-TO-DATE
 
+> Task :app:compileStandardDebugKotlin
+e: file:///home/runner/work/Aemulator-Evolved-/Aemulator-Evolved-/upstream/app/src/main/java/app/aemu/ui/GlassControls.kt:8:43 Unresolved reference 'matchParentSize'.
+e: file:///home/runner/work/Aemulator-Evolved-/Aemulator-Evolved-/upstream/app/src/main/java/app/aemu/ui/GlassControls.kt:13:35 Unresolved reference 'FilledTonalButtonDefaults'.
+e: file:///home/runner/work/Aemulator-Evolved-/Aemulator-Evolved-/upstream/app/src/main/java/app/aemu/ui/GlassControls.kt:47:22 Unresolved reference 'size'.
+e: file:///home/runner/work/Aemulator-Evolved-/Aemulator-Evolved-/upstream/app/src/main/java/app/aemu/ui/GlassControls.kt:55:22 Unresolved reference 'size'.
+e: file:///home/runner/work/Aemulator-Evolved-/Aemulator-Evolved-/upstream/app/src/main/java/app/aemu/ui/GlassControls.kt:91:5 Unresolved reference 'FilledTonalButtonDefaults'.
+e: file:///home/runner/work/Aemulator-Evolved-/Aemulator-Evolved-/upstream/app/src/main/java/app/aemu/ui/GlassControls.kt:95:8 Unresolved reference 'FilledTonalButtonDefaults'.
+
 > Task :app:compileStandardDebugKotlin FAILED
-e: file:///home/runner/work/Aemulator-Evolved-/Aemulator-Evolved-/upstream/app/src/main/java/app/aemu/ui/AppNavigation.kt:90:26 Unresolved reference 'Icon'.
-e: file:///home/runner/work/Aemulator-Evolved-/Aemulator-Evolved-/upstream/app/src/main/java/app/aemu/ui/AppNavigation.kt:105:9 No parameter with name 'alwaysShowLabels' found.
-e: file:///home/runner/work/Aemulator-Evolved-/Aemulator-Evolved-/upstream/app/src/main/java/app/aemu/ui/AppNavigation.kt:111:26 Unresolved reference 'Icon'.
-e: file:///home/runner/work/Aemulator-Evolved-/Aemulator-Evolved-/upstream/app/src/main/java/app/aemu/ui/AppNavigation.kt:131:26 Unresolved reference 'Icon'.
-e: file:///home/runner/work/Aemulator-Evolved-/Aemulator-Evolved-/upstream/app/src/main/java/app/aemu/ui/AppNavigation.kt:147:26 Unresolved reference 'Icon'.
 
 FAILURE: Build failed with an exception.
 
@@ -251,5 +254,5 @@ Caused by: org.jetbrains.kotlin.gradle.tasks.CompilationErrorException: Compilat
 	... 2 more
 
 
-BUILD FAILED in 25s
+BUILD FAILED in 36s
 33 actionable tasks: 1 executed, 32 up-to-date
