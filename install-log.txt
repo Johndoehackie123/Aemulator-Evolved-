@@ -16,7 +16,7 @@ Wrote to /home/runner/work/Aemulator-Evolved-/Aemulator-Evolved-/package.json:
 
 
 
-added 2 packages, and audited 3 packages in 1s
+added 2 packages, and audited 3 packages in 2s
 
 found 0 vulnerabilities
 Downloading Chrome for Testing 159.0.8154.6 (playwright chromium v1255) from https://cdn.playwright.dev/builds/cft/159.0.8154.6/linux64/chrome-linux64.zip
