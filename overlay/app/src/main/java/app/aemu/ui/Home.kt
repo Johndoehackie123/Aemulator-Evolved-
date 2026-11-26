@@ -132,7 +132,7 @@ fun MachineCard(
                 maxLines = 1, overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.align(Alignment.TopStart).padding(start = 14.dp, top = 14.dp, end = 48.dp))
             Box(Modifier.align(Alignment.TopEnd)) {
-                IconButton(onClick = { menu = true }) { Icon(Icons.Rounded.MoreVert, stringResource(R.string.menu), tint = Color.White) }
+                IconButton(onClick = { menu = true }, modifier = Modifier.glassWell()) { Icon(Icons.Rounded.MoreVert, stringResource(R.string.menu), tint = Color.White) }
                 DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
                     DropdownMenuItem(text = { Text(stringResource(R.string.settings)) }, leadingIcon = { Icon(Icons.Rounded.Tune, null) },
                         onClick = { menu = false; onSettings() })
@@ -156,7 +156,7 @@ fun MachineCard(
                 onClick = onStart,
                 shapes = IconButtonDefaults.shapes(),
                 colors = IconButtonDefaults.filledIconButtonColors(containerColor = Color.White, contentColor = skinColors(img).last()),
-                modifier = Modifier.align(Alignment.BottomEnd).padding(10.dp).size(44.dp),
+                modifier = Modifier.align(Alignment.BottomEnd).padding(10.dp).size(44.dp).glassWell(),
             ) { Icon(Icons.Rounded.PlayArrow, stringResource(R.string.start)) }
         }
         Column(Modifier.padding(start = 16.dp, end = 16.dp, bottom = 14.dp)) {

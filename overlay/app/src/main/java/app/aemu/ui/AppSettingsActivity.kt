@@ -182,7 +182,7 @@ fun AppSettings(onBack: () -> Unit, onRestyle: () -> Unit) {
         topBar = {
             LargeFlexibleTopAppBar(
                 title = { Text(stringResource(R.string.settings)) },
-                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Rounded.ArrowBack, stringResource(R.string.back)) } },
+                navigationIcon = { IconButton(onClick = onBack, modifier = Modifier.glassWell()) { Icon(Icons.AutoMirrored.Rounded.ArrowBack, stringResource(R.string.back)) } },
                 scrollBehavior = scroll,
             )
         },

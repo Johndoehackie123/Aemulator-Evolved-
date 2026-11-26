@@ -127,8 +127,9 @@ fun AemuTheme(forceDark: Boolean? = null, content: @Composable () -> Unit) {
             motionScheme = MotionScheme.expressive(),
             shapes = AppShapes,
             typography = AppType,
-            content = content,
-        )
+        ) {
+            GlassBackdrop(content)
+        }
     }
 }
 

@@ -75,6 +75,8 @@ import androidx.compose.ui.unit.dp
 import app.aemu.R
 import app.aemu.ui.glassBorder
 import app.aemu.ui.glassCardColors
+import app.aemu.ui.glassTonalButtonColors
+import app.aemu.ui.glassWell
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -131,12 +133,12 @@ fun FirmwareHubScreen(
                 title = { Text(stringResource(R.string.hub_title)) },
                 subtitle = { Text(stringResource(R.string.hub_subtitle), maxLines = 1) },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    IconButton(onClick = onBack, modifier = Modifier.glassWell()) {
                         Icon(Icons.Rounded.ArrowBack, stringResource(R.string.hub_back))
                     }
                 },
                 actions = {
-                    IconButton(onClick = { showSettings = true }) {
+                    IconButton(onClick = { showSettings = true }, modifier = Modifier.glassWell()) {
                         Icon(Icons.Rounded.Settings, stringResource(R.string.hub_settings))
                     }
                 },
@@ -540,6 +542,7 @@ private fun EntryActionsRow(view: EntryView, actions: EntryActions, compact: Boo
             FilledTonalButton(
                 enabled = view.importItem == null,
                 onClick = { actions.queueImport(finished) },
+                colors = glassTonalButtonColors(),
             ) {
                 Icon(Icons.Rounded.PlayArrow, null, Modifier.size(18.dp))
                 Spacer(Modifier.width(6.dp))
@@ -550,13 +553,13 @@ private fun EntryActionsRow(view: EntryView, actions: EntryActions, compact: Boo
                 )
             }
             OutlinedButton(onClick = actions.verify) { Text(stringResource(R.string.hub_verify)) }
-            IconButton(onClick = actions.discard) {
+            IconButton(onClick = actions.discard, modifier = Modifier.glassWell()) {
                 Icon(Icons.Rounded.Delete, stringResource(R.string.hub_delete_file))
             }
         }
         view.active -> Unit
         else -> {
-            FilledTonalButton(onClick = actions.download) {
+            FilledTonalButton(onClick = actions.download, colors = glassTonalButtonColors()) {
                 Icon(Icons.Rounded.CloudDownload, null, Modifier.size(18.dp))
                 Spacer(Modifier.width(6.dp))
                 Text(
@@ -950,7 +953,7 @@ private fun BrandBadge(brand: String) {
         else -> MaterialTheme.colorScheme.primary
     }
     Box(
-        Modifier.size(44.dp).clip(CircleShape).background(tint.copy(alpha = 0.16f)),
+        Modifier.size(44.dp).clip(CircleShape).background(tint.copy(alpha = 0.16f)).glassWell(CircleShape),
         contentAlignment = Alignment.Center,
     ) {
         Text(label, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold, color = tint)

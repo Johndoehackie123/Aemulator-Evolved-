@@ -4,6 +4,12 @@ Release notes are generated from the latest section of this file by
 `.github/workflows/release.yml`. Add a `## vX.Y.Z` heading above with bullet points before
 dispatching a release.
 
+## v0.0.0.9
+
+- Enhanced Glass: real blurred backdrop layers on Android 12+, icy violet/cyan glow, and glass
+  wells on icon buttons, chips, navigation, brand badges and primary buttons.
+- Balanced translucency keeps text and controls readable while making the glass look more vivid.
+
 ## v0.0.0.8
 
 - Removed the floating action button from all non-Classic navigation styles; import is now in the
