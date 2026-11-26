@@ -41,12 +41,19 @@ Daemon will be stopped at the end of the build
 > Task :app:writeStandardDebugSigningConfigVersions UP-TO-DATE
 
 > Task :app:compileStandardDebugKotlin
-e: file:///home/runner/work/Aemulator-Evolved-/Aemulator-Evolved-/upstream/app/src/main/java/app/aemu/ui/GlassControls.kt:8:43 Unresolved reference 'matchParentSize'.
-e: file:///home/runner/work/Aemulator-Evolved-/Aemulator-Evolved-/upstream/app/src/main/java/app/aemu/ui/GlassControls.kt:13:35 Unresolved reference 'FilledTonalButtonDefaults'.
-e: file:///home/runner/work/Aemulator-Evolved-/Aemulator-Evolved-/upstream/app/src/main/java/app/aemu/ui/GlassControls.kt:47:22 Unresolved reference 'size'.
-e: file:///home/runner/work/Aemulator-Evolved-/Aemulator-Evolved-/upstream/app/src/main/java/app/aemu/ui/GlassControls.kt:55:22 Unresolved reference 'size'.
-e: file:///home/runner/work/Aemulator-Evolved-/Aemulator-Evolved-/upstream/app/src/main/java/app/aemu/ui/GlassControls.kt:91:5 Unresolved reference 'FilledTonalButtonDefaults'.
-e: file:///home/runner/work/Aemulator-Evolved-/Aemulator-Evolved-/upstream/app/src/main/java/app/aemu/ui/GlassControls.kt:95:8 Unresolved reference 'FilledTonalButtonDefaults'.
+e: file:///home/runner/work/Aemulator-Evolved-/Aemulator-Evolved-/upstream/app/src/main/java/app/aemu/ui/GlassControls.kt:64:1 Conflicting overloads:
+fun glassSurfaceColor(color: Color): Color
+e: file:///home/runner/work/Aemulator-Evolved-/Aemulator-Evolved-/upstream/app/src/main/java/app/aemu/ui/GlassTheme.kt:45:1 Conflicting overloads:
+fun glassSurfaceColor(color: Color): Color
+e: file:///home/runner/work/Aemulator-Evolved-/Aemulator-Evolved-/upstream/app/src/main/java/app/aemu/ui/GlassTheme.kt:53:46 Overload resolution ambiguity between candidates:
+fun glassSurfaceColor(color: Color): Color
+fun glassSurfaceColor(color: Color): Color
+e: file:///home/runner/work/Aemulator-Evolved-/Aemulator-Evolved-/upstream/app/src/main/java/app/aemu/ui/GlassTheme.kt:55:46 Overload resolution ambiguity between candidates:
+fun glassSurfaceColor(color: Color): Color
+fun glassSurfaceColor(color: Color): Color
+e: file:///home/runner/work/Aemulator-Evolved-/Aemulator-Evolved-/upstream/app/src/main/java/app/aemu/ui/GlassTheme.kt:60:54 Overload resolution ambiguity between candidates:
+fun glassSurfaceColor(color: Color): Color
+fun glassSurfaceColor(color: Color): Color
 
 > Task :app:compileStandardDebugKotlin FAILED
 
@@ -254,5 +261,5 @@ Caused by: org.jetbrains.kotlin.gradle.tasks.CompilationErrorException: Compilat
 	... 2 more
 
 
-BUILD FAILED in 36s
+BUILD FAILED in 39s
 33 actionable tasks: 1 executed, 32 up-to-date
