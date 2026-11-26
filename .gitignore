@@ -1,0 +1,11 @@
+# Local upstream checkout (restored by CI from the pinned commit)
+/upstream-aemulator/
+/local.properties
+/build/
+/.gradle/
+*.iml
+.idea/
+.DS_Store
+node_modules/
+*.log
+build-report.txt
