@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -84,6 +85,28 @@ fun HubSettingsSheet(onDismiss: () -> Unit) {
                                     HubSettings.Layout.CARDS -> stringResource(R.string.hub_layout_cards)
                                     HubSettings.Layout.COMPACT -> stringResource(R.string.hub_layout_compact)
                                     HubSettings.Layout.GRID -> stringResource(R.string.hub_layout_grid)
+                                HubSettings.Layout.MASONRY -> stringResource(R.string.hub_layout_masonry)
+                                },
+                            )
+                        },
+                    )
+                }
+            }
+
+            HorizontalDivider(Modifier.padding(vertical = 12.dp))
+            Text(stringResource(R.string.hub_storage_quota), style = MaterialTheme.typography.titleMedium)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                listOf(0, 2, 5, 10).forEach { gb ->
+                    FilterChip(
+                        selected = settings.storageQuotaGb == gb,
+                        onClick = { HubSettings.setStorageQuota(ctx, gb) },
+                        label = {
+                            Text(
+                                when (gb) {
+                                    0 -> stringResource(R.string.hub_storage_unlimited)
+                                    2 -> stringResource(R.string.hub_storage_2gb)
+                                    5 -> stringResource(R.string.hub_storage_5gb)
+                                    else -> stringResource(R.string.hub_storage_10gb)
                                 },
                             )
                         },

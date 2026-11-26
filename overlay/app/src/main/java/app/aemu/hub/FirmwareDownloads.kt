@@ -182,6 +182,7 @@ object FirmwareDownloads {
             var keepPartial = false
             try {
                 requireAllowedNetwork(ctx)
+                requireStorageSpace(ctx, entry)
                 var have = part.takeIf { it.isFile }?.length() ?: 0L
                 val conn = (URL(entry.url).openConnection() as HttpURLConnection).apply {
                     connectTimeout = 30_000
@@ -285,6 +286,20 @@ object FirmwareDownloads {
                 delay(1500L * attempt)
             }
         }
+    }
+
+    private fun requireStorageSpace(ctx: Context, entry: FirmwareCatalog.Entry) {
+        val folder = dir(ctx)
+        val quotaGb = HubSettings.state.value.storageQuotaGb
+        if (quotaGb > 0) {
+            val used = (folder.listFiles()?.sumOf { it.length() } ?: 0L) + entry.sizeBytes.coerceAtLeast(0)
+            val limit = quotaGb * 1024L * 1024L * 1024L
+            if (used > limit)
+                throw IOException("Storage quota of $quotaGb GB would be exceeded; delete a downloaded firmware first")
+        }
+        val reserve = 100L * 1024 * 1024
+        if (folder.freeSpace < entry.sizeBytes + reserve)
+            throw IOException("Not enough free storage for ${entry.fileName}")
     }
 
     private fun requireAllowedNetwork(ctx: Context) {

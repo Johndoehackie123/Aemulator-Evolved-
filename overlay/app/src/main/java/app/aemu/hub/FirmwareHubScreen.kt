@@ -6,6 +6,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,9 +20,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
+import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -118,9 +120,7 @@ fun FirmwareHubScreen(
     val visibleEntries = FirmwareCatalog.entries.filter {
         (settings.showUnverified || it.verified) && (brand == "All" || it.brand == brand)
     }
-    val fullSpan: androidx.compose.foundation.lazy.grid.LazyGridItemSpanScope.() ->
-        androidx.compose.foundation.lazy.grid.GridItemSpan =
-        { androidx.compose.foundation.lazy.grid.GridItemSpan(maxLineSpan) }
+    val fullSpan = StaggeredGridItemSpan.FullLine
 
     Scaffold(
         modifier = Modifier.nestedScroll(scroll.nestedScrollConnection),
@@ -142,8 +142,12 @@ fun FirmwareHubScreen(
             )
         },
     ) { pad ->
-        LazyVerticalGrid(
-            columns = if (settings.layout == HubSettings.Layout.GRID) GridCells.Adaptive(260.dp) else GridCells.Fixed(1),
+        LazyVerticalStaggeredGrid(
+            columns = when (settings.layout) {
+                HubSettings.Layout.MASONRY -> StaggeredGridCells.Adaptive(180.dp)
+                HubSettings.Layout.GRID -> StaggeredGridCells.Adaptive(260.dp)
+                else -> StaggeredGridCells.Fixed(1)
+            },
             modifier = Modifier.fillMaxSize().padding(pad),
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 40.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -231,6 +235,14 @@ fun FirmwareHubScreen(
                     },
                     onDiscard = { FirmwareDownloads.discard(ctx, e) },
                 ) else FirmwareCard(
+                    modifier = if (settings.layout == HubSettings.Layout.MASONRY) {
+                        val accent = when {
+                            FirmwareDownloads.verdict(ctx, e) == FirmwareDownloads.Verdict.VERIFIED -> MaterialTheme.colorScheme.tertiary
+                            FirmwareDownloads.verdict(ctx, e) == FirmwareDownloads.Verdict.UNVERIFIED -> MaterialTheme.colorScheme.error
+                            else -> MaterialTheme.colorScheme.primary
+                        }
+                        Modifier.border(2.dp, accent, MaterialTheme.shapes.extraLarge)
+                    } else Modifier,
                     entry = e,
                     state = downloads[e.id] ?: FirmwareDownloads.EntryState(e.id),
                     inQueue = e.id in downloadQueue,
@@ -330,6 +342,7 @@ private fun StatColumn(value: String, label: String) {
 
 @Composable
 private fun FirmwareCard(
+    modifier: Modifier = Modifier,
     entry: FirmwareCatalog.Entry,
     state: FirmwareDownloads.EntryState,
     inQueue: Boolean,
@@ -346,6 +359,7 @@ private fun FirmwareCard(
 ) {
     val ctx = LocalContext.current
     Card(
+        modifier = modifier,
         shape = MaterialTheme.shapes.extraLarge,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
     ) {

@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.update
 /** User preferences that only affect the Firmware Hub. Stored in the existing "hub" prefs. */
 object HubSettings {
 
-    enum class Layout { CARDS, COMPACT, GRID }
+    enum class Layout { CARDS, COMPACT, GRID, MASONRY }
 
     data class Values(
         val autoImport: Boolean = true,
@@ -18,6 +18,8 @@ object HubSettings {
         val showUnverified: Boolean = true,
         val reverifyBeforeImport: Boolean = false,
         val layout: Layout = Layout.CARDS,
+        /** 0 = unlimited; otherwise maximum total bytes of files kept in the Hub. */
+        val storageQuotaGb: Int = 0,
     )
 
     private val _state = MutableStateFlow(Values())
@@ -33,7 +35,14 @@ object HubSettings {
             reverifyBeforeImport = p.getBoolean("s_reverify", false),
             layout = runCatching { Layout.valueOf(p.getString("s_layout", "CARDS") ?: "CARDS") }
                 .getOrDefault(Layout.CARDS),
+            storageQuotaGb = p.getInt("s_quota_gb", 0),
         )
+    }
+
+    fun setStorageQuota(ctx: Context, gb: Int) {
+        ctx.applicationContext.getSharedPreferences("hub", Context.MODE_PRIVATE)
+            .edit().putInt("s_quota_gb", gb).apply()
+        _state.update { it.copy(storageQuotaGb = gb) }
     }
 
     fun setAutoImport(ctx: Context, value: Boolean) = put(ctx, "s_auto_import", value) { copy(autoImport = value) }

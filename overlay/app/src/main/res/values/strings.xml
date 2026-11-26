@@ -265,6 +265,12 @@
     <string name="hub_layout_cards">Cards</string>
     <string name="hub_layout_compact">Compact</string>
     <string name="hub_layout_grid">Grid</string>
+    <string name="hub_layout_masonry">Mosaic</string>
+    <string name="hub_storage_quota">Storage quota</string>
+    <string name="hub_storage_unlimited">Unlimited</string>
+    <string name="hub_storage_2gb">2 GB</string>
+    <string name="hub_storage_5gb">5 GB</string>
+    <string name="hub_storage_10gb">10 GB</string>
     <string name="hub_close">Close</string>
     <string name="hub_stat_catalog">Catalog</string>
     <string name="hub_stat_downloaded">Downloaded</string>
