@@ -130,6 +130,7 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         if (styleOf(applicationContext) != style) { recreate(); return }
+        AppNavSettings.load(applicationContext)
         model.refresh()
     }
 
@@ -174,7 +175,7 @@ fun Library(model: LibraryModel) {
     var addMenu by remember { mutableStateOf(false) }
     var library by remember { mutableStateOf(false) }
     var showHub by remember { mutableStateOf(false) }
-    var navStyle by remember { mutableStateOf(AppNavSettings.load(ctx)) }
+    val navStyle by AppNavSettings.style.collectAsState(initial = AppNavSettings.load(ctx))
     var destination by remember { mutableStateOf(AppDestination.MACHINES) }
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     var containerFrom by remember { mutableStateOf<GuestImage?>(null) }

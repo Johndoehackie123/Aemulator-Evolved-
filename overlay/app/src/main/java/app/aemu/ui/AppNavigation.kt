@@ -31,6 +31,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import app.aemu.R
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 /** Navigation style for the main app shell. CLASSIC preserves the original top-bar + FAB UI. */
 enum class AppNavStyle { CLASSIC, BOTTOM, RAIL, DRAWER, TABS, SIDE }
@@ -42,16 +45,25 @@ object AppNavSettings {
     private const val PREFS = "app_navigation"
     private const val KEY_STYLE = "style"
 
-    fun load(ctx: Context): AppNavStyle = runCatching {
-        AppNavStyle.valueOf(
-            ctx.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-                .getString(KEY_STYLE, AppNavStyle.CLASSIC.name) ?: AppNavStyle.CLASSIC.name,
-        )
-    }.getOrDefault(AppNavStyle.CLASSIC)
+    private val _style = MutableStateFlow(AppNavStyle.CLASSIC)
+    /** Observable so a change made in Settings updates an already-composed main screen. */
+    val style: StateFlow<AppNavStyle> = _style.asStateFlow()
 
-    fun set(ctx: Context, style: AppNavStyle) {
+    fun load(ctx: Context): AppNavStyle {
+        val saved = runCatching {
+            AppNavStyle.valueOf(
+                ctx.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+                    .getString(KEY_STYLE, AppNavStyle.CLASSIC.name) ?: AppNavStyle.CLASSIC.name,
+            )
+        }.getOrDefault(AppNavStyle.CLASSIC)
+        _style.value = saved
+        return saved
+    }
+
+    fun set(ctx: Context, value: AppNavStyle) {
         ctx.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-            .edit().putString(KEY_STYLE, style.name).apply()
+            .edit().putString(KEY_STYLE, value.name).apply()
+        _style.value = value
     }
 }
 

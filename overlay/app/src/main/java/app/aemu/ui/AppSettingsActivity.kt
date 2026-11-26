@@ -104,6 +104,7 @@ class AppSettingsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        AppNavSettings.load(this)
         setContent { AemuTheme { AppSettings(onBack = ::finish, onRestyle = ::restart) } }
     }
 

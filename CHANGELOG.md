@@ -4,6 +4,12 @@ Release notes are generated from the latest section of this file by
 `.github/workflows/release.yml`. Add a `## vX.Y.Z` heading above with bullet points before
 dispatching a release.
 
+## v0.0.0.7
+
+- Fixed navigation styles not applying: the selected style is now an observable preference, so
+  changes made in Settings update the main screen immediately, including when Settings is opened
+  as a separate activity.
+
 ## v0.0.0.6
 
 - **Stable APK signature.** A fixed signing key now lives in `signing/`; every CI build is signed
