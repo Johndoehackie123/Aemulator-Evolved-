@@ -5,12 +5,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.matchParentSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.FilledTonalButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -30,7 +29,7 @@ fun GlassBackdrop(content: @Composable () -> Unit) {
     } else {
     Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         Box(
-            Modifier.matchParentSize().background(
+            Modifier.fillMaxSize().background(
                 Brush.linearGradient(
                     listOf(
                         MaterialTheme.colorScheme.background,
@@ -58,7 +57,7 @@ fun GlassBackdrop(content: @Composable () -> Unit) {
                     .blur(85.dp),
             )
         }
-        Box(Modifier.matchParentSize()) { content() }
+        Box(Modifier.fillMaxSize()) { content() }
     }
     }
 }
@@ -88,8 +87,8 @@ fun glassButtonColors(): ButtonColors = if (LocalGlassTheme.current) {
 
 @Composable
 fun glassTonalButtonColors(): ButtonColors = if (LocalGlassTheme.current) {
-    FilledTonalButtonDefaults.buttonColors(
+    ButtonDefaults.filledTonalButtonColors(
         containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.68f),
         contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
     )
-} else FilledTonalButtonDefaults.buttonColors()
+} else ButtonDefaults.filledTonalButtonColors()
